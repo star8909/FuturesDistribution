@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>FuturesDistribution 챔피언 대시보드</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --bg-row: #1c2128;
+    --bg-row-alt: #161b22;
+    --bg-hover: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --gold: #ffd700;
+    --green: #3fb950;
+    --red: #f85149;
+    --orange: #d29922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+  h1 { font-size: 28px; margin-bottom: 4px; color: var(--gold); }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 16px; }
+  .project-nav { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .project-nav a {
+    display: inline-block; padding: 8px 14px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); text-decoration: none;
+    font-size: 13px; transition: all 0.15s;
+  }
+  .project-nav a:hover { background: var(--bg-hover); border-color: var(--accent); }
+  .project-nav a.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 24px; font-weight: 600; margin-top: 4px; }
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.green { color: var(--green); }
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+  th { background: #21262d; color: var(--text-dim); padding: 12px 14px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 12px; text-transform: uppercase; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: var(--bg-row-alt); }
+  tr:nth-child(odd) td { background: var(--bg-row); }
+  tr:hover td { background: var(--bg-hover); }
+  .info-box {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; margin-top: 24px; font-size: 13px;
+  }
+  .info-box h3 { color: var(--accent); margin-bottom: 8px; font-size: 15px; }
+  .info-box p { color: var(--text-dim); margin-bottom: 6px; }
+  .info-box code { background: #0d1117; padding: 2px 6px; border-radius: 3px; color: var(--gold); font-size: 12px; }
+  .placeholder { background: var(--bg-card); border: 1px dashed var(--border); border-radius: 8px; padding: 32px; text-align: center; color: var(--text-dim); }
+</style>
+</head>
+<body>
+<h1>🎯 FuturesDistribution 챔피언 대시보드</h1>
+<div class="subtitle">한투 해외선물옵션 (CME / EUREX / ICE / HKEX / SGX) — R70 logic 이식 baseline 단계</div>
+<nav class="project-nav">
+  <a href="../../ProbabilityDistribution/dashboard/index.html">📈 ProbabilityDistribution (암호화폐)</a>
+  <a href="../../EquityDistribution/dashboard/index.html">📊 EquityDistribution (해외주식)</a>
+  <a class="active">🎯 FuturesDistribution (해외선물옵션)</a>
+</nav>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-label">상태</div><div class="stat-value gold" style="font-size:18px">초기 baseline</div></div>
+  <div class="stat-card"><div class="stat-label">Universe</div><div class="stat-value">~30 선물</div></div>
+  <div class="stat-card"><div class="stat-label">데이터 출처</div><div class="stat-value" style="font-size:14px">yfinance =F suffix</div></div>
+  <div class="stat-card"><div class="stat-label">비용 모델</div><div class="stat-value" style="font-size:14px">50bps default</div></div>
+</div>
+
+<div class="placeholder">
+  <p style="font-size:16px; color:var(--gold); margin-bottom:8px">🔄 iter01 baseline 진행 중</p>
+  <p>R70 logic (composite z 21d+8d + CVaR α=2.0 + HMM 4y mild + single-K) 을 해외선물 universe에 이식.</p>
+  <p>결과 도착 시 챔피언 테이블 업데이트 예정.</p>
+</div>
+
+<div class="info-box">
+  <h3>📋 한투 거래 가능 Universe</h3>
+  <p><strong>지수선물</strong>: ES (E-mini S&P), NQ (Nasdaq), YM (Dow), RTY (Russell), NIY (Nikkei) — Micro 버전 포함</p>
+  <p><strong>통화선물</strong>: 6E (Euro), 6J (Yen), 6B (Pound), 6A (AUD), 6C (CAD), 6S (CHF), DX (USD index)</p>
+  <p><strong>금리선물</strong>: ZT (2Y), ZF (5Y), ZN (10Y), ZB (30Y) US Treasury</p>
+  <p><strong>에너지선물</strong>: CL (WTI), BZ (Brent), NG (Natural Gas), HO (Heating Oil), RB (Gasoline)</p>
+  <p><strong>금속선물</strong>: GC (Gold), SI (Silver), HG (Copper), PL (Platinum), PA (Palladium)</p>
+  <p><strong>농산물선물</strong>: ZC (Corn), ZW (Wheat), ZS (Soybean), KC (Coffee), SB (Sugar), CT (Cotton), CC (Cocoa)</p>
+</div>
+
+<div class="info-box">
+  <h3>💰 비용 모델 (선물 vs 주식 차이)</h3>
+  <p>주식(EquityDist): commission 1bp + slippage 2bps = <code>3~4bps</code></p>
+  <p>선물(이 프로젝트): commission 5bps + slippage 5bps + spread 2~3bps + roll 3~5bps/quarter = <code>15~50bps</code></p>
+  <p>백테스트 기본 <code>50bps</code>, stress test <code>100/150/200bps</code>까지 검증.</p>
+</div>
+
+<div class="info-box">
+  <h3>🛡️ 실거래 안전 규칙 (한투 해외선물 적용 시)</h3>
+  <p>1. <strong>Micro 선물만 사용</strong> ($10k 계좌 권장: MES, MNQ, MGC, MCL)</p>
+  <p>2. 포지션 1개당 자본 5% 이하 (margin call 방지)</p>
+  <p>3. STOP 주문 항상 동시 입력 (한투 IF Done OCO 활용)</p>
+  <p>4. 추가증거금 발생 시 즉시 강제청산 (-15% drawdown 도달)</p>
+  <p>5. 롤오버 자동 알림 (FND 5영업일 전)</p>
+  <p>6. 24시간 모니터링 자동화 (직접 보지 X — 봇이 처리)</p>
+</div>
+
+<div class="info-box">
+  <h3>🔗 자매 프로젝트</h3>
+  <p>같은 방법론을 다른 자산군에 적용:</p>
+  <p>📈 <a href="../../ProbabilityDistribution/dashboard/index.html" style="color:var(--accent)">ProbabilityDistribution</a> — 암호화폐 (Multi-coin Sharpe 1.82)</p>
+  <p>📊 <a href="../../EquityDistribution/dashboard/index.html" style="color:var(--accent)">EquityDistribution</a> — 한투 해외주식 (R70 BT Sharpe 11.74, 75bps 8.88)</p>
+</div>
+
+<div class="info-box">
+  <h3>⚠️ 가설 (검증 필요)</h3>
+  <p><strong>선물은 trend-following이 정통</strong> — momentum logic이 통할 가능성 ↑</p>
+  <p>그러나 <strong>효율적 시장</strong>이라 retail 알파 적을 듯. 예상 Sharpe 1~3 (주식 8.88 대비 약함).</p>
+  <p>핵심 차별화 시그널 (선물 특화):</p>
+  <p>- Term structure: contango/backwardation 활용</p>
+  <p>- COT 리포트: commercial vs speculator 포지션</p>
+  <p>- Inventory data: EIA 원유, 가스 storage</p>
+  <p>- Carry: 통화/원자재 만기 차이</p>
+</div>
+
+</body>
+</html>
