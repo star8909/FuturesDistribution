@@ -38,21 +38,50 @@
   .stat-value { font-size: 24px; font-weight: 600; margin-top: 4px; }
   .stat-value.gold { color: var(--gold); }
   .stat-value.green { color: var(--green); }
-  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-  th { background: #21262d; color: var(--text-dim); padding: 12px 14px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 12px; text-transform: uppercase; }
-  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .stat-value.red { color: var(--red); }
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+  th { background: #21262d; color: var(--text-dim); text-align: left; padding: 10px 12px; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--text); }
+  th.sort-asc::after { content: ' ▲'; color: var(--accent); }
+  th.sort-desc::after { content: ' ▼'; color: var(--accent); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
   tr:nth-child(even) td { background: var(--bg-row-alt); }
   tr:nth-child(odd) td { background: var(--bg-row); }
   tr:hover td { background: var(--bg-hover); }
-  .info-box {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 16px; margin-top: 24px; font-size: 13px;
+  .iter { font-weight: 600; color: var(--accent); text-align: center; }
+  .iter.crown { color: var(--gold); }
+  .crown::before { content: '👑 '; }
+  .name { font-weight: 500; }
+  .logic { color: var(--text-dim); font-size: 12px; max-width: 320px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sharpe-bt { color: var(--accent); }
+  .cagr { color: var(--green); }
+  .cagr.neg { color: var(--red); }
+  .mdd { color: var(--red); }
+  .score {
+    font-weight: 700; text-align: center; border-radius: 4px;
+    padding: 4px 8px; display: inline-block; min-width: 44px;
   }
-  .info-box h3 { color: var(--accent); margin-bottom: 8px; font-size: 15px; }
-  .info-box p { color: var(--text-dim); margin-bottom: 6px; }
-  .info-box code { background: #0d1117; padding: 2px 6px; border-radius: 3px; color: var(--gold); font-size: 12px; }
-  .placeholder { background: var(--bg-card); border: 1px dashed var(--border); border-radius: 8px; padding: 32px; text-align: center; color: var(--text-dim); }
+  .score.s90 { background: rgba(63, 185, 80, 0.2); color: var(--green); }
+  .score.s80 { background: rgba(63, 185, 80, 0.12); color: var(--green); }
+  .score.s70 { background: rgba(210, 153, 34, 0.15); color: var(--orange); }
+  .score.s60 { background: rgba(210, 153, 34, 0.1); color: var(--orange); }
+  .score.s40 { background: rgba(248, 81, 73, 0.12); color: var(--red); }
+  .verdict { font-size: 12px; }
+  .verdict.ok { color: var(--green); }
+  .verdict.warn { color: var(--orange); }
+  .verdict.bad { color: var(--red); }
+  .note { font-size: 12px; color: var(--text-dim); white-space: nowrap; max-width: 360px; overflow: hidden; text-overflow: ellipsis; }
+  .formula { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: var(--text-dim); }
+  .formula h3 { color: var(--text); margin-bottom: 8px; font-size: 14px; }
+  .formula .pass { color: var(--green); font-weight: 600; }
+  .formula .fail { color: var(--red); font-weight: 600; }
+  .formula code { background: var(--bg); padding: 2px 6px; border-radius: 3px; color: var(--gold); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .crown-row td { background: rgba(255, 215, 0, 0.04) !important; }
+  .footer { margin-top: 24px; color: var(--text-dim); font-size: 12px; text-align: center; }
 </style>
 </head>
 <body>
@@ -65,36 +94,80 @@
 </nav>
 
 <div class="stats">
-  <div class="stat-card"><div class="stat-label">상태</div><div class="stat-value gold" style="font-size:18px">초기 baseline</div></div>
-  <div class="stat-card"><div class="stat-label">Universe</div><div class="stat-value">~30 선물</div></div>
-  <div class="stat-card"><div class="stat-label">데이터 출처</div><div class="stat-value" style="font-size:14px">yfinance =F suffix</div></div>
-  <div class="stat-card"><div class="stat-label">비용 모델</div><div class="stat-value" style="font-size:14px">50bps default</div></div>
+  <div class="stat-card">
+    <div class="stat-label">실행 iter</div>
+    <div class="stat-value gold" id="stat-count">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">최고 Sharpe</div>
+    <div class="stat-value" id="stat-bt">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">최저 MDD (가장 안전)</div>
+    <div class="stat-value red" id="stat-mdd">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">현재 평가</div>
+    <div class="stat-value" style="font-size:18px; color: var(--orange)" id="stat-status">⚠️ 부분 성공</div>
+  </div>
 </div>
 
-<div class="placeholder">
-  <p style="font-size:16px; color:var(--gold); margin-bottom:8px">🔄 iter01 baseline 진행 중</p>
-  <p>R70 logic (composite z 21d+8d + CVaR α=2.0 + HMM 4y mild + single-K) 을 해외선물 universe에 이식.</p>
-  <p>결과 도착 시 챔피언 테이블 업데이트 예정.</p>
+<div class="formula">
+  <h3>📊 실거래 점수 (100점 만점) — 선물 기준</h3>
+  <div>
+    1. <code>Sharpe (30점)</code> = 2.0+ 만점, 1.0+ 20점, 0.5+ 10점<br>
+    2. <code>MDD (30점)</code> — -25% 이내 만점, -50% 이내 15점, -75% 이내 5점, 그 외 0점 (선물 본질이 위험)<br>
+    3. <code>운용 친화도 (15점)</code> = 한투 거래 가능(10) + Micro 선물 가능(5)<br>
+    4. <code>비용 robustness (15점)</code> = 100bps Sharpe 1+(15) / 75bps(10) / else(5)<br>
+    5. <code>백테스트 견고성 (10점)</code> = 16y walk-forward + 카테고리 일관성
+  </div>
+  <div class="legend">
+    <span style="color: var(--green)">●</span> 80+ 실거래 시도 가능 (소액 micro 선물)
+    <span style="color: var(--orange)">●</span> 60-79 추가 검증 필요
+    <span style="color: var(--red)">●</span> &lt; 60 실거래 불가
+  </div>
+  <div style="margin-top: 12px; font-size: 12px;">
+    <span class="pass">✅ Agri (농산물) momentum logic 작동</span> — Sharpe 3.11. 비효율 시장 가설 일부 확인 (옥수수/밀/콩).<br>
+    <span class="fail">❌ Currency / Rate momentum 부적합</span> — 모두 Sharpe 음수 (-2.66 / -2.80). mean-reverting 자산.<br>
+    <span class="fail">❌ MDD -77~-100% 폭발</span> — R70 logic 그대로 이식 시 위험. 변동성 차이로 안전장치 필수.<br>
+    <span class="pass">✅ 100bps stress 통과</span> — 한투 선물 비용 (50~100bps 추정) 안에서 alpha 유지.<br>
+    <span class="pass">⚠️ 다음 시도 (iter02)</span> — Agri 단독 + inverse-vol + position cap + HMM 강화. MDD &lt; -30% 목표.
+  </div>
 </div>
 
-<div class="info-box">
-  <h3>📋 한투 거래 가능 Universe</h3>
-  <p><strong>지수선물</strong>: ES (E-mini S&P), NQ (Nasdaq), YM (Dow), RTY (Russell), NIY (Nikkei) — Micro 버전 포함</p>
-  <p><strong>통화선물</strong>: 6E (Euro), 6J (Yen), 6B (Pound), 6A (AUD), 6C (CAD), 6S (CHF), DX (USD index)</p>
-  <p><strong>금리선물</strong>: ZT (2Y), ZF (5Y), ZN (10Y), ZB (30Y) US Treasury</p>
-  <p><strong>에너지선물</strong>: CL (WTI), BZ (Brent), NG (Natural Gas), HO (Heating Oil), RB (Gasoline)</p>
-  <p><strong>금속선물</strong>: GC (Gold), SI (Silver), HG (Copper), PL (Platinum), PA (Palladium)</p>
-  <p><strong>농산물선물</strong>: ZC (Corn), ZW (Wheat), ZS (Soybean), KC (Coffee), SB (Sugar), CT (Cotton), CC (Cocoa)</p>
+<div class="table-wrap">
+  <table id="table">
+    <thead>
+      <tr>
+        <th data-key="iter">iter</th>
+        <th data-key="name">설정</th>
+        <th>핵심 로직</th>
+        <th data-key="bt_sharpe" class="num">Sharpe</th>
+        <th data-key="cagr" class="num">CAGR</th>
+        <th data-key="mdd" class="num">MDD</th>
+        <th data-key="universe" class="num">Universe</th>
+        <th data-key="top_k" class="num">Top-K</th>
+        <th data-key="cost_robust" class="num">Cost Robust</th>
+        <th data-key="score" class="num sort-desc">점수</th>
+        <th>판정</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 </div>
 
-<div class="info-box">
-  <h3>💰 비용 모델 (선물 vs 주식 차이)</h3>
-  <p>주식(EquityDist): commission 1bp + slippage 2bps = <code>3~4bps</code></p>
-  <p>선물(이 프로젝트): commission 5bps + slippage 5bps + spread 2~3bps + roll 3~5bps/quarter = <code>15~50bps</code></p>
-  <p>백테스트 기본 <code>50bps</code>, stress test <code>100/150/200bps</code>까지 검증.</p>
+<div class="formula" style="margin-top: 24px;">
+  <h3>📋 한투 거래 가능 Universe (현재 사용 중)</h3>
+  <p><strong>지수선물</strong> (5): ES, NQ, YM, RTY, NIY — Sharpe 0.11 ❌ momentum 약함</p>
+  <p><strong>통화선물</strong> (6): 6E, 6J, 6B, 6A, 6C, 6S, DX — Sharpe -2.66 ❌ momentum 부적합</p>
+  <p><strong>금리선물</strong> (4): ZT, ZF, ZN, ZB — Sharpe -2.80 ❌ momentum 부적합</p>
+  <p><strong>에너지선물</strong> (5): CL, BZ, NG, HO, RB — Sharpe 1.53 ⚠️</p>
+  <p><strong>금속선물</strong> (5): GC, SI, HG, PL, PA — Sharpe 1.41 ⚠️</p>
+  <p><strong>농산물선물</strong> (10): ZC, ZW, ZS, ZL, ZM, KC, SB, CT, CC, OJ — <strong>Sharpe 3.11 ✅</strong></p>
 </div>
 
-<div class="info-box">
+<div class="formula">
   <h3>🛡️ 실거래 안전 규칙 (한투 해외선물 적용 시)</h3>
   <p>1. <strong>Micro 선물만 사용</strong> ($10k 계좌 권장: MES, MNQ, MGC, MCL)</p>
   <p>2. 포지션 1개당 자본 5% 이하 (margin call 방지)</p>
@@ -104,23 +177,134 @@
   <p>6. 24시간 모니터링 자동화 (직접 보지 X — 봇이 처리)</p>
 </div>
 
-<div class="info-box">
+<div class="formula">
   <h3>🔗 자매 프로젝트</h3>
   <p>같은 방법론을 다른 자산군에 적용:</p>
-  <p>📈 <a href="../../ProbabilityDistribution/dashboard/index.html" style="color:var(--accent)">ProbabilityDistribution</a> — 암호화폐 (Multi-coin Sharpe 1.82)</p>
+  <p>📈 <a href="../../ProbabilityDistribution/dashboard/index.html" style="color:var(--accent)">ProbabilityDistribution</a> — 암호화폐 (multi4 Sharpe 1.82)</p>
   <p>📊 <a href="../../EquityDistribution/dashboard/index.html" style="color:var(--accent)">EquityDistribution</a> — 한투 해외주식 (R70 BT Sharpe 11.74, 75bps 8.88)</p>
 </div>
 
-<div class="info-box">
-  <h3>⚠️ 가설 (검증 필요)</h3>
-  <p><strong>선물은 trend-following이 정통</strong> — momentum logic이 통할 가능성 ↑</p>
-  <p>그러나 <strong>효율적 시장</strong>이라 retail 알파 적을 듯. 예상 Sharpe 1~3 (주식 8.88 대비 약함).</p>
-  <p>핵심 차별화 시그널 (선물 특화):</p>
-  <p>- Term structure: contango/backwardation 활용</p>
-  <p>- COT 리포트: commercial vs speculator 포지션</p>
-  <p>- Inventory data: EIA 원유, 가스 storage</p>
-  <p>- Carry: 통화/원자재 만기 차이</p>
+<div class="footer">
+  FuturesDistribution · 해외선물옵션 분포 백테스트 · LLM 안 씀 (수치 모델만)
 </div>
 
+<script>
+const champions = [
+  { iter: "01-A", name: "전체 universe + R70 (top_k=4)", logic: "📊 36개 선물 + R70 logic 그대로 이식 (composite + CVaR + HMM)",
+    bt_sharpe: 4.95, cagr: 165.0, mdd: -77.6, universe: "36 선물", top_k: 4,
+    cost_robust: "100bps", score: 45, verdict: "bad", crown: false,
+    note: "❌ Sharpe 4.95 fancy but MDD -77.6% 망함. 실거래 불가" },
+  { iter: "01-B", name: "Agri 단독 (top_k=3)", logic: "🌾 농산물 10개 (ZC/ZW/ZS/ZL/ZM/KC/SB/CT/CC/OJ) + R70",
+    bt_sharpe: 3.11, cagr: 103.1, mdd: -86.8, universe: "10 농산물", top_k: 3,
+    cost_robust: "?", score: 50, verdict: "warn", crown: true,
+    note: "🚀 카테고리 1위! 비효율 시장 alpha 확인 but MDD 여전히 큼" },
+  { iter: "01-C", name: "Energy (top_k=2)", logic: "⛽ CL/BZ/NG/HO/RB + R70",
+    bt_sharpe: 1.53, cagr: 76.4, mdd: -88.7, universe: "5 에너지", top_k: 2,
+    cost_robust: "?", score: 35, verdict: "bad", crown: false,
+    note: "⚠️ Sharpe 1.53 약함, MDD -89% 폭발" },
+  { iter: "01-D", name: "Metal (top_k=2)", logic: "🥇 GC/SI/HG/PL/PA + R70",
+    bt_sharpe: 1.41, cagr: 38.9, mdd: -77.9, universe: "5 금속", top_k: 2,
+    cost_robust: "?", score: 35, verdict: "bad", crown: false,
+    note: "⚠️ Sharpe 1.41 약함, 금속 momentum 부족" },
+  { iter: "01-E", name: "Index (top_k=2)", logic: "📈 ES/NQ/YM/RTY/NIY + R70",
+    bt_sharpe: 0.11, cagr: 0.5, mdd: -72.8, universe: "5 지수", top_k: 2,
+    cost_robust: "?", score: 15, verdict: "bad", crown: false,
+    note: "❌ Sharpe 0.11 거의 0. 지수선물 momentum 효과 X" },
+  { iter: "01-F", name: "Currency (top_k=2)", logic: "💱 6E/6J/6B/6A/6C/6S/DX + R70",
+    bt_sharpe: -2.66, cagr: -22.0, mdd: -94.9, universe: "6 통화", top_k: 2,
+    cost_robust: "?", score: 5, verdict: "bad", crown: false,
+    note: "❌❌ Sharpe -2.66 음수! mean-reverting 자산엔 momentum 부적합" },
+  { iter: "01-G", name: "Rate (top_k=2)", logic: "📉 ZT/ZF/ZN/ZB + R70",
+    bt_sharpe: -2.80, cagr: -21.2, mdd: -94.4, universe: "4 금리", top_k: 2,
+    cost_robust: "?", score: 5, verdict: "bad", crown: false,
+    note: "❌❌ Sharpe -2.80 음수! 금리선물도 mean-reverting" },
+];
+
+let sortKey = "score";
+let sortDesc = true;
+
+function fmt(v, dec=2, pct=false) {
+  if (v === null || v === undefined) return "—";
+  return pct ? (v).toFixed(dec) + "%" : v.toFixed(dec);
+}
+
+function scoreClass(s) {
+  if (s >= 90) return "s90";
+  if (s >= 80) return "s80";
+  if (s >= 70) return "s70";
+  if (s >= 60) return "s60";
+  return "s40";
+}
+
+function verdictText(v) {
+  if (v === "ok") return "✅ 시도 가능";
+  if (v === "warn") return "⚠️ 검증 필요";
+  return "❌ 실거래 불가";
+}
+
+function render() {
+  const sorted = [...champions].sort((a, b) => {
+    const x = a[sortKey], y = b[sortKey];
+    if (typeof x === "number") return sortDesc ? y - x : x - y;
+    return sortDesc ? String(y).localeCompare(String(x)) : String(x).localeCompare(String(y));
+  });
+
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = sorted.map(c => `
+    <tr class="${c.crown ? 'crown-row' : ''}">
+      <td class="iter ${c.crown ? 'crown' : ''}">${c.iter}</td>
+      <td class="name">${c.name}</td>
+      <td class="logic">${c.logic}</td>
+      <td class="num sharpe-bt">${fmt(c.bt_sharpe)}</td>
+      <td class="num ${c.cagr < 0 ? 'cagr neg' : 'cagr'}">${fmt(c.cagr, 1, true)}</td>
+      <td class="num mdd">${fmt(c.mdd, 1, true)}</td>
+      <td class="num" style="color: var(--text-dim); font-size: 12px;">${c.universe}</td>
+      <td class="num" style="color: var(--text-dim); font-size: 12px;">${c.top_k}</td>
+      <td class="num" style="color: var(--text-dim); font-size: 12px;">${c.cost_robust}</td>
+      <td class="num"><span class="score ${scoreClass(c.score)}">${c.score}</span></td>
+      <td class="verdict ${c.verdict}">${verdictText(c.verdict)}</td>
+      <td class="note" title="${c.note}">${c.note || ""}</td>
+    </tr>
+  `).join("");
+
+  document.querySelectorAll("th").forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    if (th.dataset.key === sortKey) {
+      th.classList.add(sortDesc ? "sort-desc" : "sort-asc");
+    }
+  });
+}
+
+document.querySelectorAll("th[data-key]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key;
+    if (key === sortKey) sortDesc = !sortDesc;
+    else { sortKey = key; sortDesc = true; }
+    render();
+  });
+});
+
+function updateStats() {
+  document.getElementById("stat-count").textContent = champions.length;
+  const maxSharpe = Math.max(...champions.map(c => c.bt_sharpe));
+  document.getElementById("stat-bt").textContent = maxSharpe.toFixed(2);
+  const minMdd = Math.max(...champions.map(c => c.mdd));  // closest to 0
+  document.getElementById("stat-mdd").textContent = minMdd.toFixed(1) + "%";
+  const maxScore = Math.max(...champions.map(c => c.score));
+  if (maxScore < 60) {
+    document.getElementById("stat-status").textContent = "❌ 실거래 불가";
+    document.getElementById("stat-status").style.color = "var(--red)";
+  } else if (maxScore < 80) {
+    document.getElementById("stat-status").textContent = "⚠️ 검증 필요";
+    document.getElementById("stat-status").style.color = "var(--orange)";
+  } else {
+    document.getElementById("stat-status").textContent = "✅ 시도 가능";
+    document.getElementById("stat-status").style.color = "var(--green)";
+  }
+}
+
+updateStats();
+render();
+</script>
 </body>
 </html>
