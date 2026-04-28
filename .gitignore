@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Data cache (gitignored — re-download via tools/fetch_universe.py)
+data/cache/
+*.parquet
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs (commit selectively — keep iter*.log for reproducibility)
+*.tmp.log

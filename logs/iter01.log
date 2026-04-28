@@ -1,0 +1,5 @@
+HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: DX=F"}}}
+$DX=F: possibly delisted; no timezone found
+
+1 Failed download:
+['DX=F']: possibly delisted; no timezone found
