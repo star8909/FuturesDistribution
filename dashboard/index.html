@@ -243,10 +243,14 @@ const champions = [
     bt_sharpe: 4.01, cagr: 129.1, mdd: -24.1, universe: "10 농산물", top_k: 3,
     cost_robust: "?", score: 82, verdict: "ok", crown: false,
     note: "✅ Sharpe 4.01, MDD -24.1%" },
-  { iter: "14", name: "🏆 Top-K=2 (NEW BEST)", logic: "🛡️ DD-10% lock 63d + Top-K=2 (더 집중)",
+  { iter: "14", name: "Top-K=2 (이전 챔)", logic: "🛡️ DD-10% lock 63d + Top-K=2 + (21,8) composite",
     bt_sharpe: 4.16, cagr: 142.4, mdd: -16.4, universe: "10 농산물", top_k: 2,
-    cost_robust: "?", score: 95, verdict: "ok", crown: true,
-    note: "🚀 iter04 능가! Sharpe +0.22, CAGR +26%p (MDD -2%p but Sharpe 우위)" },
+    cost_robust: "?", score: 92, verdict: "ok", crown: false,
+    note: "🥈 iter16 (8d only, 4.46) 능가됨. Sharpe 4.16, MDD -16.4%" },
+  { iter: "16", name: "🏆 8d only (NEW BEST)", logic: "🛡️ DD-10% lock 63d + k=2 + 8d momentum 단독 (21d 제거)",
+    bt_sharpe: 4.46, cagr: 151.8, mdd: -19.2, universe: "10 농산물", top_k: 2,
+    cost_robust: "?", score: 96, verdict: "ok", crown: true,
+    note: "🚀 21d 제거하니 Sharpe +0.30, CAGR +10%p! 단순할수록 강함 (R70 패턴 재확인)" },
 ];
 
 let sortKey = "score";
