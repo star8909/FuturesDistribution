@@ -216,12 +216,7 @@ def main():
     }
     reg_sharpes = []
     for r_name, (start, end) in regimes.items():
-        m = (pnl_full.index >= pd.Timestamp(start, tz='UTC')) & (pnl_full.index <= pd.Timestamp(end, tz='UTC'))
-        # tz 안 맞을 수도
-        try:
-            m = (pnl_full.index >= pd.Timestamp(start)) & (pnl_full.index <= pd.Timestamp(end))
-        except Exception:
-            pass
+        m = (pnl_full.index >= pd.Timestamp(start)) & (pnl_full.index <= pd.Timestamp(end))
         seg = pnl_full[m]
         if len(seg) > 30:
             mm = metrics(seg)
