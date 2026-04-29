@@ -1,0 +1,31 @@
+[iter11] Volatility breakout (Bollinger band)
+
+=== Agri BB breakout sweep ===
+  ✅ lb=20 z=2.0: Sharpe=2.21 CAGR=51.1% MDD=-25.9%
+  ✅ lb=20 z=1.5: Sharpe=2.86 CAGR=70.9% MDD=-25.9%
+  ✅ lb=10 z=2.0: Sharpe=1.51 CAGR=33.0% MDD=-26.5%
+  ✅ lb=50 z=2.0: Sharpe=1.38 CAGR=25.7% MDD=-30.9%
+  ✅ lb=50 z=1.5: Sharpe=2.35 CAGR=49.2% MDD=-25.9%
+
+=== Energy BB breakout sweep ===
+  ⚠️ lb=20 z=2.0: Sharpe=0.61 CAGR=9.0% MDD=-32.7%
+  ⚠️ lb=20 z=1.5: Sharpe=0.74 CAGR=10.4% MDD=-27.0%
+  ⚠️ lb=10 z=2.0: Sharpe=0.50 CAGR=6.5% MDD=-32.7%
+  ⚠️ lb=50 z=2.0: Sharpe=0.51 CAGR=6.5% MDD=-32.7%
+  ⚠️ lb=50 z=1.5: Sharpe=0.81 CAGR=12.0% MDD=-32.7%
+
+=== Metal BB breakout sweep ===
+  ⚠️ lb=20 z=2.0: Sharpe=0.77 CAGR=11.1% MDD=-32.7%
+  ⚠️ lb=20 z=1.5: Sharpe=0.88 CAGR=13.7% MDD=-32.7%
+  ⚠️ lb=10 z=2.0: Sharpe=0.86 CAGR=13.9% MDD=-26.8%
+  ⚠️ lb=50 z=2.0: Sharpe=0.85 CAGR=13.2% MDD=-32.7%
+  ⚠️ lb=50 z=1.5: Sharpe=0.75 CAGR=10.9% MDD=-31.9%
+
+=== Index BB breakout sweep ===
+  ⚠️ lb=20 z=2.0: Sharpe=1.00 CAGR=14.0% MDD=-25.9%
+  ✅ lb=20 z=1.5: Sharpe=1.04 CAGR=14.8% MDD=-25.9%
+  ⚠️ lb=10 z=2.0: Sharpe=0.93 CAGR=12.7% MDD=-26.8%
+  ✅ lb=50 z=2.0: Sharpe=1.09 CAGR=15.0% MDD=-25.9%
+  ✅ lb=50 z=1.5: Sharpe=1.10 CAGR=14.8% MDD=-25.9%
+
+  → C:\Projects\FuturesDistribution\results\iter11_vol_breakout.json
