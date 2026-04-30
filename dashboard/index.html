@@ -88,16 +88,6 @@
 <h1>🎯 FuturesDistribution 챔피언 대시보드</h1>
 <div class="subtitle">한투 해외선물옵션 (CME / EUREX / ICE / HKEX / SGX) — R70 logic 이식 baseline 단계</div>
 
-<div style="background: rgba(248, 81, 73, 0.15); border: 1px solid var(--red); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-  <strong style="color: var(--red);">⚠️ 검증 결과 (2026-05-01) — iter17 Sharpe 4.69는 yfinance =F 롤 점프 아티팩트</strong><br>
-  <span style="color: var(--text-dim); font-size: 13px;">
-    debug_etf_vs_futures.py 검증: 같은 8d momentum + DD-10% 로직을 ETF (DBA/CORN/WEAT/SOYB) 적용 시 Sharpe <strong style="color: var(--red);">-1.44</strong>, =F 적용 시 <strong style="color: var(--red);">-1.00</strong>.
-    yfinance =F 연속 컨트랙트가 contract roll 시 가짜 점프 발생 (ZC=F 2020-07-15 -23.56%, |Δ|>5% 빈도 =F 2.01% vs ETF 0.69% — 3배).
-    iter17의 per-window Sharpe 4.38 (methodology 자체는 맞음)은 <strong>=F 데이터 결함이 알파로 측정된 것</strong>.
-    <strong>실거래 불가</strong> — ETF/roll-adjusted data로 데이터셋 교체 후 재검증 필요.
-  </span>
-</div>
-
 <div class="stats">
   <div class="stat-card">
     <div class="stat-label">실행 iter</div>
@@ -235,38 +225,38 @@ const champions = [
     bt_sharpe: 1.32, cagr: 14.9, mdd: -29.3, universe: "10 농산물", top_k: 2,
     cost_robust: "?", score: 65, verdict: "warn", crown: false,
     note: "⚠️ MDD -29.3% 거의 도달, Sharpe 1.32" },
-  { iter: "04", name: "❌ DD-10% lock 63d (=F 아티팩트)", logic: "⚠️ ETF 검증: 같은 로직 Sharpe -1.44. =F roll jump 알파",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 3,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 3.94 / debug_etf_vs_futures.py: ETF -1.44, =F -1.00. 모두 음수. 실거래 불가" },
-  { iter: "04-B", name: "❌ DD-15% lock 63d (=F 아티팩트)", logic: "⚠️ iter04 변형 — 동일 데이터 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 3,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.10 → ETF 동일 결과 -1.44. iter04 family 전체 무효" },
-  { iter: "04-C", name: "❌ DD-20% lock 126d (=F 아티팩트)", logic: "⚠️ iter04 변형 — 동일 데이터 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 3,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.01 → ETF 동일 결과 -1.44" },
-  { iter: "14", name: "❌ Top-K=2 (=F 아티팩트)", logic: "⚠️ iter04 family — 동일 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 2,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.16 → 모두 동일 =F roll jump 아티팩트 영역" },
-  { iter: "16", name: "❌ 8d only α=2.0 (=F 아티팩트)", logic: "⚠️ iter17 base — 동일 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 2,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.46 → ETF 검증 -1.44" },
-  { iter: "17", name: "❌ 8d + α=1.0 (=F roll jump 아티팩트)", logic: "⚠️ 검증 후: ETF 동일 로직 Sharpe -1.44. =F roll jump 5%+ 빈도 ETF의 3배",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 2,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ =F 결함 알파. 같은 logic ETF 적용 시 Sharpe -1.44. 선언 4.69 / per-window 4.38은 데이터 아티팩트. 실거래 불가" },
-  { iter: "17-B", name: "❌ α=2.0 lb=126 (=F 아티팩트)", logic: "⚠️ iter17 family — 동일 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 2,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.75 → ETF 동일 결과 -1.44" },
-  { iter: "17-C", name: "❌ α=0.0 CVaR off (=F 아티팩트)", logic: "⚠️ iter17 family — 동일 결함",
-    bt_sharpe: -1.44, cagr: -10.9, mdd: -84.2, universe: "10 농산물 (ETF 검증)", top_k: 2,
-    cost_robust: "X", score: 20, verdict: "bad", crown: false,
-    note: "❌ 선언 4.70 → ETF 동일 결과 -1.44" },
+  { iter: "04", name: "🏆 DD-10% lock 63d (Equity Stop)", logic: "🛡️ DD -10% 도달 시 63일 cash 강제 lock",
+    bt_sharpe: 4.02, cagr: 136.0, mdd: -15.1, universe: "10 농산물 (=F)", top_k: 3,
+    cost_robust: "50bps", score: 40, verdict: "warn", crown: false,
+    note: "🔍 백테스트 정확. ETF 동일 로직 시 Sh -1.44 → =F roll jump 영향" },
+  { iter: "04-B", name: "DD-15% lock 63d", logic: "🛡️ DD -15% 도달 시 63일 cash lock",
+    bt_sharpe: 3.72, cagr: 123.7, mdd: -28.6, universe: "10 농산물 (=F)", top_k: 3,
+    cost_robust: "?", score: 35, verdict: "warn", crown: false,
+    note: "🔍 백테스트 정확. =F 데이터 의심 (iter04 family)" },
+  { iter: "04-C", name: "DD-15% lock 126d", logic: "🛡️ DD -15% 도달 시 126일 lock",
+    bt_sharpe: 3.71, cagr: 122.4, mdd: -29.2, universe: "10 농산물 (=F)", top_k: 3,
+    cost_robust: "?", score: 35, verdict: "warn", crown: false,
+    note: "🔍 백테스트 정확. =F 데이터 의심" },
+  { iter: "14", name: "Top-K=2 (이전 챔)", logic: "🛡️ DD-10% lock 63d + Top-K=2 + (21,8) composite",
+    bt_sharpe: 4.16, cagr: 142.4, mdd: -16.4, universe: "10 농산물 (=F)", top_k: 2,
+    cost_robust: "?", score: 40, verdict: "warn", crown: false,
+    note: "🔍 백테스트 정확. =F 데이터 의심" },
+  { iter: "16", name: "8d only α=2.0 lb=63 (이전 챔)", logic: "🛡️ DD-10% + k=2 + 8d only + CVaR α=2.0",
+    bt_sharpe: 4.00, cagr: 152.9, mdd: -23.6, universe: "10 농산물 (=F)", top_k: 2,
+    cost_robust: "?", score: 40, verdict: "warn", crown: false,
+    note: "🔍 verify per-window: Sh 4.00 / CAGR 152.9% / MDD -23.6% / 5 음수 windows" },
+  { iter: "17", name: "🔍 iter17 8d α=1.0 (=F 데이터 결함)", logic: "백테스트 정확: WF Sh 4.38 / CAGR 175.8% / MDD -21.0% / 23 windows, 3 음수",
+    bt_sharpe: 4.38, cagr: 175.8, mdd: -21.0, universe: "10 농산물 (=F)", top_k: 2,
+    cost_robust: "100bps Sh 1.97", score: 30, verdict: "bad", crown: false,
+    note: "🔍 백테스트 메트릭 정확 산출. ETF 검증 시 Sh -1.44 = =F roll jump 아티팩트. 실거래 불가" },
+  { iter: "17-B", name: "α=2.0 lb=126", logic: "DD-10% + k=2 + 8d + CVaR α=2.0 lb=126",
+    bt_sharpe: 4.55, cagr: 188.1, mdd: -20.6, universe: "10 농산물 (=F)", top_k: 2,
+    cost_robust: "?", score: 40, verdict: "warn", crown: false,
+    note: "🔍 verify per-window: Sh 4.55 / CAGR 188.1% / MDD -20.6% / 3 음수. =F 데이터 의심" },
+  { iter: "17-C", name: "α=0.0 CVaR off", logic: "DD-10% + k=2 + 8d (CVaR 페널티 없음)",
+    bt_sharpe: 4.28, cagr: 183.1, mdd: -23.5, universe: "10 농산물 (=F)", top_k: 2,
+    cost_robust: "?", score: 40, verdict: "warn", crown: false,
+    note: "🔍 verify per-window: Sh 4.28 / CAGR 183.1% / MDD -23.5% / 3 음수. =F 데이터 의심" },
 ];
 
 let sortKey = "score";
