@@ -1,0 +1,28 @@
+[iter21] Spread / pair trading
+  종목 로드: ['ZS=F', 'CL=F', 'SI=F', 'BZ=F', 'HO=F', 'ZW=F', 'NG=F', 'ZC=F', 'GC=F']
+
+=== Pair trading 결과 ===
+  Pair                      z_thr  Sharpe    CAGR     MDD  flips
+  Gold-Silver (GC-SI)         1.5   -0.66  -12.6%  -91.2%     51 
+  Gold-Silver (GC-SI)         2.0   -0.54  -10.0%  -85.7%     30 
+  Gold-Silver (GC-SI)         2.5   -0.34   -6.4%  -72.6%     25 
+  Crude-Brent (CL-BZ)         1.5   -0.24  -14.3% -252.0%     88 
+  Crude-Brent (CL-BZ)         2.0   -0.20  -11.2% -252.0%     62 
+  Crude-Brent (CL-BZ)         2.5   -0.23  -12.9% -252.0%     41 
+  Soy-Corn (ZS-ZC)            1.5   -0.41   -8.7%  -80.8%     53 
+  Soy-Corn (ZS-ZC)            2.0   -0.33   -7.0%  -71.2%     33 
+  Soy-Corn (ZS-ZC)            2.5   -0.27   -5.6%  -64.2%     20 
+  Heating-Crude (HO-CL)       1.5   -0.30  -12.7% -177.7%     56 
+  Heating-Crude (HO-CL)       2.0   -0.25   -9.0% -200.1%     43 
+  Heating-Crude (HO-CL)       2.5   -0.25   -8.4% -208.3%     27 
+  Soy-Wheat (ZS-ZW)           1.5   -0.10   -4.1%  -71.8%     66 
+  Soy-Wheat (ZS-ZW)           2.0    0.08   -0.1%  -56.3%     41 
+  Soy-Wheat (ZS-ZW)           2.5   -0.21   -4.2%  -66.9%     16 
+  Corn-Wheat (ZC-ZW)          1.5   -0.09   -3.8%  -54.0%     62 
+  Corn-Wheat (ZC-ZW)          2.0   -0.01   -1.8%  -54.1%     43 
+  Corn-Wheat (ZC-ZW)          2.5    0.21   +2.0%  -31.9%     25 
+  Gas-Crude (NG-CL)           1.5   -0.31  -20.4% -137.6%     56 
+  Gas-Crude (NG-CL)           2.0   -0.22  -10.5% -163.0%     42 
+  Gas-Crude (NG-CL)           2.5   -0.25   -9.4% -161.1%     21 
+
+  → C:\Projects\FuturesDistribution\results\iter21_spread_pairs.json
