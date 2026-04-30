@@ -23,18 +23,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -126,6 +115,7 @@ def champ_wf(rets, cash_rets,
         return w
 
     locked_until = -1
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -135,6 +125,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -174,8 +165,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w_eff).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def main():
@@ -185,9 +178,9 @@ def main():
 
     # Baseline
     print("\n=== Baseline ===")
-    pnl_full = champ_wf(rets, cash)
-    m_full = metrics(pnl_full)
-    print(f"  full: Sharpe={m_full['Sharpe']:.2f} CAGR={m_full['CAGR']*100:.1f}% MDD={m_full['MDD']*100:.1f}%")
+    pnl_full, win_pnls_full = champ_wf(rets, cash)
+    m_full = wf_metrics(pnl_full, win_pnls_full)
+    print(f"  full: Sharpe={m_full['mean_sharpe']:.2f} CAGR={m_full['CAGR']*100:.1f}% MDD={m_full['MDD']*100:.1f}%")
 
     # 1. Multi-OOS
     print("\n=== Multi-OOS (4 setups) ===")
@@ -199,10 +192,10 @@ def main():
     ]
     oos_sharpes = []
     for name, tr, te, st in oos_setups:
-        pnl = champ_wf(rets, cash, train=tr, test=te, step=st)
-        m = metrics(pnl)
-        oos_sharpes.append(m['Sharpe'])
-        print(f"  {name}: Sharpe={m['Sharpe']:.2f}")
+        pnl, win_pnls = champ_wf(rets, cash, train=tr, test=te, step=st)
+        m = wf_metrics(pnl, win_pnls)
+        oos_sharpes.append(m['mean_sharpe'])
+        print(f"  {name}: Sharpe={m['mean_sharpe']:.2f}")
     ratio = min(oos_sharpes) / max(oos_sharpes) if max(oos_sharpes) > 0 else 0
     print(f"  Multi-OOS ratio: {ratio*100:.0f}% {'✅' if ratio > 0.7 else '⚠️'}")
 
@@ -246,37 +239,37 @@ def main():
     print("\n=== Cost stress ===")
     cost_results = {}
     for fee_bps in [50, 100, 150]:
-        pnl = champ_wf(rets, cash, fee_per_change=fee_bps/1e4)
-        mc = metrics(pnl)
+        pnl, win_pnls = champ_wf(rets, cash, fee_per_change=fee_bps/1e4)
+        mc = wf_metrics(pnl, win_pnls)
         cost_results[fee_bps] = mc
-        color = "✅" if mc['Sharpe'] > 3 else "⚠️" if mc['Sharpe'] > 1 else "❌"
-        print(f"  {color} {fee_bps}bps: Sharpe={mc['Sharpe']:.2f} MDD={mc['MDD']*100:.1f}%")
+        color = "✅" if mc['mean_sharpe'] > 1.0 else "⚠️" if mc['mean_sharpe'] > 0.3 else "❌"
+        print(f"  {color} {fee_bps}bps: Sharpe={mc['mean_sharpe']:.2f} MDD={mc['MDD']*100:.1f}%")
 
     # 종합
     pass_oos = ratio > 0.7
     pass_regime = min(reg_sharpes) > 0 if reg_sharpes else False
     pass_crash = worst > -0.25
-    pass_100 = cost_results.get(100, {}).get("Sharpe", 0) > 2
+    pass_100 = cost_results.get(100, {}).get("mean_sharpe", 0) > 1.0
 
     print(f"\n=== iter17 ROBUST 종합 ===")
     print(f"  Multi-OOS: {'✅' if pass_oos else '❌'} ({ratio*100:.0f}%)")
     print(f"  Regime: {'✅' if pass_regime else '❌'} (min {min(reg_sharpes) if reg_sharpes else 0:.2f})")
     print(f"  Crash: {'✅' if pass_crash else '❌'} ({worst*100:.1f}%)")
-    print(f"  100bps: {'✅' if pass_100 else '❌'} (Sharpe {cost_results.get(100, {}).get('Sharpe', 0):.2f})")
+    print(f"  100bps: {'✅' if pass_100 else '❌'} (Sharpe {cost_results.get(100, {}).get('mean_sharpe', 0):.2f})")
     if pass_oos and pass_regime and pass_crash and pass_100:
         print(f"  🏆 iter17 ALL ROBUST 통과!")
     else:
         print(f"  ⚠️ 일부 실패")
 
     summary = {
-        "baseline": m_full,
+        "baseline": {k: v for k, v in m_full.items() if not isinstance(v, list)},
         "multi_oos_ratio": ratio,
         "multi_oos_sharpes": oos_sharpes,
         "regime_min": min(reg_sharpes) if reg_sharpes else 0,
         "regime_sharpes": reg_sharpes,
         "crash_worst_dd": worst,
         "crash_dds": dict(zip(crashes.keys(), max_dds)),
-        "cost_stress": cost_results,
+        "cost_stress": {k: {kk: vv for kk, vv in v.items() if not isinstance(vv, list)} for k, v in cost_results.items()},
     }
     out = RESULTS_DIR / "iter19_robust.json"
     out.write_text(json.dumps(summary, indent=2, ensure_ascii=False, default=str), encoding='utf-8')

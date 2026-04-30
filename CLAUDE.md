@@ -8,8 +8,8 @@
 **확률분포로 다루는** 분석/백테스트 플레이그라운드.
 
 자매 프로젝트:
-- `c:\Projects\ProbabilityDistribution` — 암호화폐 (현물 + funding 차익)
-- `c:\Projects\EquityDistribution` — 글로벌 주식/ETF (한투 해외주식 universe)
+- `c:\Projects\Quant\ProbabilityDistribution` — 암호화폐 (현물 + funding 차익)
+- `c:\Projects\Quant\EquityDistribution` — 글로벌 주식/ETF (한투 해외주식 universe)
 
 세 프로젝트 모두 **같은 방법론** (CVaR + GMM + HMM + walk-forward) 을 다른 자산군에 적용.
 

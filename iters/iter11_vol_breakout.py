@@ -22,18 +22,7 @@ import pandas as pd
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES, ENERGY_FUTURES, METAL_FUTURES, INDEX_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def bb_breakout_wf(closes, cash_rets,
@@ -73,6 +62,7 @@ def bb_breakout_wf(closes, cash_rets,
         return w
 
     locked_until = -1
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -83,6 +73,7 @@ def bb_breakout_wf(closes, cash_rets,
             for c in cash_rets.columns:
                 w[c] = 1.0 / len(cash_rets.columns)
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -120,8 +111,10 @@ def bb_breakout_wf(closes, cash_rets,
             r = float((test_idx.iloc[i] * w_eff).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def run_cat(name, syms, cash):
@@ -132,13 +125,14 @@ def run_cat(name, syms, cash):
     results = {}
     for lb, z in [(20, 2.0), (20, 1.5), (10, 2.0), (50, 2.0), (50, 1.5)]:
         try:
-            pnl = bb_breakout_wf(closes, cash, bb_lookback=lb, bb_z=z, top_k=2)
-            m = metrics(pnl)
+            pnl, win_pnls = bb_breakout_wf(closes, cash, bb_lookback=lb, bb_z=z, top_k=2)
+            m = wf_metrics(pnl, win_pnls)
             results[f"lb{lb}_z{z}"] = m
-            color = "🚀" if m['Sharpe'] > 2 and m['MDD'] > -0.20 else \
-                    "✅" if m['Sharpe'] > 1 else \
-                    "⚠️" if m['Sharpe'] > 0 else "❌"
-            print(f"  {color} lb={lb} z={z}: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+            neg = m['neg_windows']; nw = m['n_windows']
+            color = "🚀" if m['mean_sharpe'] > 2.0 and m['MDD'] > -0.20 else \
+                    "✅" if m['mean_sharpe'] > 1.0 else \
+                    "⚠️" if m['mean_sharpe'] > 0.3 else "❌"
+            print(f"  {color} lb={lb} z={z}: Sharpe={m['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
         except Exception as e:
             print(f"  lb{lb} z{z}: ERROR {e}")
     return results

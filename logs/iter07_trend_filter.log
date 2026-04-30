@@ -1,0 +1,50 @@
+[iter07] Trend strength filter (강한 trend만 진입)
+
+=== Agri (n=10) ===
+  ⚠️ vol8% cf50% trend60d 5% 55% +MA: Sharpe=0.54 CAGR=5.8% MDD=-31.3%
+  ⚠️ vol8% cf50% trend60d 10% 60% +MA: Sharpe=0.60 CAGR=6.6% MDD=-31.5%
+  ⚠️ vol8% cf50% trend60d 5% 50% noMA: Sharpe=1.16 CAGR=14.1% MDD=-46.5%
+  ⚠️ vol5% cf50% trend60d 5% 55% +MA: Sharpe=0.52 CAGR=5.6% MDD=-33.9%
+  ⚠️ vol10% cf30% trend60d 5% 55% +MA: Sharpe=0.57 CAGR=6.2% MDD=-31.0%
+  ⚠️ vol8% cf50% trend90d 8% 55% +MA: Sharpe=0.69 CAGR=7.7% MDD=-30.6%
+  ❌ vol8% cf50% trend30d 3% 55% +MA: Sharpe=0.41 CAGR=4.3% MDD=-33.2%
+  ⚠️ vol8% cf70% trend60d 5% 60% +MA (보수): Sharpe=0.60 CAGR=6.6% MDD=-31.3%
+
+=== Energy (n=5) ===
+  ⚠️ vol8% cf50% trend60d 5% 55% +MA: Sharpe=0.60 CAGR=6.6% MDD=-30.7%
+  ⚠️ vol8% cf50% trend60d 10% 60% +MA: Sharpe=0.58 CAGR=6.3% MDD=-33.2%
+  ⚠️ vol8% cf50% trend60d 5% 50% noMA: Sharpe=0.78 CAGR=9.6% MDD=-24.5%
+  ⚠️ vol5% cf50% trend60d 5% 55% +MA: Sharpe=0.62 CAGR=6.8% MDD=-32.7%
+  ⚠️ vol10% cf30% trend60d 5% 55% +MA: Sharpe=0.60 CAGR=6.6% MDD=-30.5%
+  ⚠️ vol8% cf50% trend90d 8% 55% +MA: Sharpe=0.55 CAGR=5.9% MDD=-32.9%
+  ⚠️ vol8% cf50% trend30d 3% 55% +MA: Sharpe=0.50 CAGR=5.5% MDD=-32.8%
+  ⚠️ vol8% cf70% trend60d 5% 60% +MA (보수): Sharpe=0.60 CAGR=6.6% MDD=-32.4%
+
+=== Metal (n=5) ===
+  ⚠️ vol8% cf50% trend60d 5% 55% +MA: Sharpe=0.58 CAGR=6.3% MDD=-32.7%
+  ⚠️ vol8% cf50% trend60d 10% 60% +MA: Sharpe=0.58 CAGR=6.4% MDD=-32.7%
+  ⚠️ vol8% cf50% trend60d 5% 50% noMA: Sharpe=0.68 CAGR=8.3% MDD=-29.9%
+  ⚠️ vol5% cf50% trend60d 5% 55% +MA: Sharpe=0.58 CAGR=6.3% MDD=-32.7%
+  ⚠️ vol10% cf30% trend60d 5% 55% +MA: Sharpe=0.59 CAGR=6.5% MDD=-32.7%
+  ⚠️ vol8% cf50% trend90d 8% 55% +MA: Sharpe=0.55 CAGR=6.0% MDD=-34.1%
+  ❌ vol8% cf50% trend30d 3% 55% +MA: Sharpe=0.49 CAGR=5.3% MDD=-35.0%
+  ⚠️ vol8% cf70% trend60d 5% 60% +MA (보수): Sharpe=0.57 CAGR=6.2% MDD=-32.7%
+
+=== Agri + Energy + Metal (n=20) ===
+  ⚠️ vol8% cf50% trend60d 5% 55% +MA: Sharpe=0.63 CAGR=7.1% MDD=-23.3%
+  ⚠️ vol8% cf50% trend60d 10% 60% +MA: Sharpe=0.60 CAGR=6.6% MDD=-31.2%
+  ⚠️ vol8% cf50% trend60d 5% 50% noMA: Sharpe=1.74 CAGR=24.0% MDD=-50.9%
+  ⚠️ vol5% cf50% trend60d 5% 55% +MA: Sharpe=0.60 CAGR=6.6% MDD=-28.2%
+  ⚠️ vol10% cf30% trend60d 5% 55% +MA: Sharpe=0.59 CAGR=6.6% MDD=-22.5%
+  ⚠️ vol8% cf50% trend90d 8% 55% +MA: Sharpe=0.74 CAGR=8.6% MDD=-24.1%
+  ❌ vol8% cf50% trend30d 3% 55% +MA: Sharpe=0.46 CAGR=5.0% MDD=-41.4%
+  ⚠️ vol8% cf70% trend60d 5% 60% +MA (보수): Sharpe=0.60 CAGR=6.6% MDD=-30.3%
+
+=== iter07 종합 (실거래 가능 영역) ===
+  ⚠️ 차선 (MDD > -25%):
+    ✅ energy | vol8% cf50% trend60d 5% 50% noMA: Sharpe=0.78 MDD=-24.5%
+    ✅ combined | vol8% cf50% trend90d 8% 55% +MA: Sharpe=0.74 MDD=-24.1%
+    ✅ combined | vol8% cf50% trend60d 5% 55% +MA: Sharpe=0.63 MDD=-23.3%
+    ✅ combined | vol10% cf30% trend60d 5% 55% +MA: Sharpe=0.59 MDD=-22.5%
+
+  → C:\Projects\FuturesDistribution\results\iter07_trend_filter.json

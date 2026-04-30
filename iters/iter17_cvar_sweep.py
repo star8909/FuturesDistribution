@@ -20,18 +20,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -127,6 +116,7 @@ def champ_wf(rets, cash_rets,
         return w
 
     locked_until = -1
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -136,6 +126,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -175,8 +166,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w_eff).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def main():
@@ -203,11 +196,14 @@ def main():
     results = {}
     for name, a, lb, pct in configs:
         try:
-            pnl = champ_wf(rets, cash, cvar_alpha=a, cvar_lb=lb, cvar_pct=pct)
-            m = metrics(pnl)
+            pnl, win_pnls = champ_wf(rets, cash, cvar_alpha=a, cvar_lb=lb, cvar_pct=pct)
+            m = wf_metrics(pnl, win_pnls)
             results[name] = m
-            color = "🚀" if m['Sharpe'] > 4.46 else "✅" if m['Sharpe'] > 4 else "⚠️" if m['Sharpe'] > 3 else "❌"
-            print(f"  {color} {name}: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+            sh = m['mean_sharpe']
+            color = "🚀" if sh > 2.0 else "✅" if sh > 1.0 else "⚠️" if sh > 0.3 else "❌"
+            neg = m['neg_windows']
+            n = m['n_windows']
+            print(f"  {color} {name}: Sharpe={sh:.2f} (win {n-neg}/{n}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
         except Exception as e:
             print(f"  {name}: ERROR {e}")
 

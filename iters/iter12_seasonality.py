@@ -26,18 +26,7 @@ import pandas as pd
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def main():

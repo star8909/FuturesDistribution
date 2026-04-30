@@ -1,0 +1,106 @@
+{
+  "audit_date": "2026-04-30",
+  "summary": "5개 자매 프로젝트 선언 vs 실제 Sharpe 검증",
+  "projects": [
+    {
+      "name": "ProbabilityDistribution",
+      "path": "C:/Projects/ProbabilityDistribution",
+      "asset": "크립토 (BTC/SOL/MATIC 등)",
+      "status": "OK",
+      "declared_sharpe": 1.258,
+      "declared_label": "iter14 단일 split (선언)",
+      "real_sharpe": 0.63,
+      "real_label": "iter29 walk-forward mean",
+      "inflation_factor": null,
+      "issue": "iter14(1.258)는 단일 70/30 split — CLAUDE.md에 이미 가짜 교훈으로 명시. 실제 챔피언(iter29 walk-forward) Sharpe 0.63 (per-window 평균). 정상.",
+      "recommendation": "현재 방법론 유지. per-window 집계 올바름.",
+      "debug_script": null
+    },
+    {
+      "name": "EquityDistribution",
+      "path": "C:/Projects/EquityDistribution",
+      "asset": "해외주식 (Asia 122종목)",
+      "status": "INFLATED",
+      "declared_sharpe": 11.74,
+      "declared_label": "R70 (iter139) BT Sharpe",
+      "real_sharpe": 0.55,
+      "real_label": "24개 윈도우 per-window 평균",
+      "inflation_factor": 21.3,
+      "issue": "walk-forward PnL을 전 윈도우 이어붙인 뒤 metrics() 한 번 호출 → std 극소화 → 21배 부풀림. 24개 윈도우 중 8개(33%) 음수. Sharpe>3 윈도우 0개.",
+      "recommendation": "champ_wf() 반환값을 per-window로 분리해 mean_sharpe 집계로 수정 필요. CAGR/MDD도 window별 재계산 필요.",
+      "debug_script": "C:/Projects/EquityDistribution/debug_window_distribution.py",
+      "debug_results": {
+        "n_windows": 24,
+        "mean_sharpe": 0.55,
+        "median_sharpe": 0.43,
+        "negative_windows": 8,
+        "negative_pct": 33,
+        "sharpe_gt3_windows": 0
+      }
+    },
+    {
+      "name": "FuturesDistribution",
+      "path": "C:/Projects/FuturesDistribution",
+      "asset": "해외선물 (CME 농산물/에너지/금속)",
+      "status": "DATA_ARTIFACT",
+      "declared_sharpe": 3.94,
+      "declared_label": "iter04 momentum (=F continuous)",
+      "real_sharpe": -1.44,
+      "real_label": "ETF(DBA 등) 동일 로직",
+      "inflation_factor": null,
+      "issue": "yfinance =F continuous futures의 contract 롤오버 시 가짜 점프: ZC=F 예) 2020-07-15 -23.56%, 2019-07-15 -17.39%. |Δ|>5% 빈도: =F 2.01% vs ETF 0.69% (3배). 같은 8d momentum 로직 ETF 적용 시 Sharpe -1.44.",
+      "recommendation": "ETF 데이터(DBA, CORN, WEAT 등)로 교체하거나 roll-adjusted data 사용. 현재 =F 결과 전부 무효.",
+      "debug_script": "C:/Projects/FuturesDistribution/debug_etf_vs_futures.py",
+      "debug_results": {
+        "futures_sharpe": -0.97,
+        "etf_sharpe": -1.44,
+        "zc_big_jump_5pct_pct": 2.01,
+        "etf_big_jump_5pct_pct": 0.69,
+        "top_jump_date": "2020-07-15",
+        "top_jump_pct": -23.56,
+        "top_jump_next5d_pct": 0.86
+      }
+    },
+    {
+      "name": "OptionsDistribution",
+      "path": "C:/Projects/OptionsDistribution",
+      "asset": "옵션 (VIX/VVIX 패닉 신호)",
+      "status": "STATISTICALLY_INVALID",
+      "declared_sharpe": 9.77,
+      "declared_label": "iter21 Both panic STRONG N=19",
+      "real_sharpe": null,
+      "real_label": "독립 이벤트 N=2 (통계 불가)",
+      "inflation_factor": null,
+      "issue": "패닉이 연속 18일 지속(2020 COVID 전부) — 모든 날을 별개 관측치로 처리. 180d forward return 거의 동일 → std→0 → Sharpe 폭등. 독립 이벤트: N=2 (2020-03-13, 2020-04-08). 통계적 신뢰도 없음(최소 N=10 필요).",
+      "recommendation": "연속 패닉 = 1개 이벤트로 처리. 더 낮은 VIX 임계값(예: >25)으로 2008/2015/2022도 포함시켜 N 확보. 현재 iter21 챔피언 등록 보류.",
+      "debug_script": "C:/Projects/OptionsDistribution/debug_iter21_overlap.py",
+      "debug_results": {
+        "raw_n": 18,
+        "all_crisis_year": 2020,
+        "independent_events": 2,
+        "base_rate_spy_180d_win": 0.87,
+        "conditional_spy_180d_mean": 0.491
+      }
+    },
+    {
+      "name": "polymarket-analyze",
+      "path": "C:/Projects/polymarket-analyze",
+      "asset": "예측 마켓 (Polymarket negRisk)",
+      "status": "THEORETICAL",
+      "declared_edge": 17.75,
+      "declared_label": "iter05 safe_arb 152개 평균",
+      "real_edge": "5~7",
+      "real_label": "iter14 real calibration N=2085",
+      "issue": "iter05의 17.75%는 negRisk 가격 합 편차를 이론 edge로 계산한 것. 실제로는 유동성 부족(min_vol $7k)으로 동시 진입 불가. 실제 calibration(iter14)에서 확인된 edge: longshot 과대평가 ~0.5%, favorite 과소평가 ~5~7%.",
+      "recommendation": "calibration edge(5~7%)는 실제 알파. iter14 기반으로 진짜 베팅 시뮬레이션(iter16 Kelly) 결과 활용.",
+      "debug_script": null,
+      "debug_results": {
+        "n_calibrated": 2085,
+        "longshot_edge_pct": -0.5,
+        "favorite_edge_pct": 6.1,
+        "politics_60_70_edge": 0.092,
+        "sports_30_40_edge": -0.335
+      }
+    }
+  ]
+}

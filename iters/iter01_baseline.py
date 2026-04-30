@@ -28,18 +28,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import all_futures, all_futures_flat, INDEX_FUTURES, ENERGY_FUTURES, METAL_FUTURES, AGRI_FUTURES, CURRENCY_FUTURES, RATE_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -141,6 +130,7 @@ def champ_wf(rets, cash_rets,
                 w = w / w.sum()
         return w
 
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -150,6 +140,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -166,8 +157,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def main():
@@ -186,10 +179,11 @@ def main():
 
     # 1. 전체 universe + R70 logic
     print("\n=== R70 logic on Futures (전체 universe) ===")
-    pnl = champ_wf(rets, cash, top_k=4)
-    m = metrics(pnl)
-    color = "🚀" if m['Sharpe'] > 5 else "✅" if m['Sharpe'] > 3 else "⚠️" if m['Sharpe'] > 1 else "❌"
-    print(f"  {color} 전체 + top_k=4: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+    pnl, win_pnls = champ_wf(rets, cash, top_k=4)
+    m = wf_metrics(pnl, win_pnls)
+    neg = m['neg_windows']; nw = m['n_windows']
+    color = "🚀" if m['mean_sharpe'] > 2.0 else "✅" if m['mean_sharpe'] > 1.0 else "⚠️" if m['mean_sharpe'] > 0.3 else "❌"
+    print(f"  {color} 전체 + top_k=4: Sharpe={m['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
 
     # 2. 카테고리별
     print("\n=== 카테고리별 R70 logic ===")
@@ -209,30 +203,31 @@ def main():
             continue
         # top_k = min(2, len(syms)//3)
         top_k_cat = max(2, sub_rets.shape[1] // 3)
-        sub_pnl = champ_wf(sub_rets, cash, top_k=top_k_cat)
-        sm = metrics(sub_pnl)
+        sub_pnl, sub_win_pnls = champ_wf(sub_rets, cash, top_k=top_k_cat)
+        sm = wf_metrics(sub_pnl, sub_win_pnls)
         cat_results[cat_name] = sm
-        color = "🚀" if sm['Sharpe'] > 5 else "✅" if sm['Sharpe'] > 3 else "⚠️" if sm['Sharpe'] > 1 else "❌"
-        print(f"  {color} {cat_name} (n={sub_rets.shape[1]}, k={top_k_cat}): Sharpe={sm['Sharpe']:.2f} CAGR={sm['CAGR']*100:.1f}% MDD={sm['MDD']*100:.1f}%")
+        neg = sm['neg_windows']; nw = sm['n_windows']
+        color = "🚀" if sm['mean_sharpe'] > 2.0 else "✅" if sm['mean_sharpe'] > 1.0 else "⚠️" if sm['mean_sharpe'] > 0.3 else "❌"
+        print(f"  {color} {cat_name} (n={sub_rets.shape[1]}, k={top_k_cat}): Sharpe={sm['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={sm['CAGR']*100:.1f}% MDD={sm['MDD']*100:.1f}%")
 
     # 3. Cost stress (선물 더 높음)
     print("\n=== Cost Stress (선물 50/100/150/200 bps) ===")
     cost_results = {}
     for fee_bps in [50, 100, 150, 200]:
-        pnl_c = champ_wf(rets, cash, top_k=4, fee_per_change=fee_bps/1e4)
-        mc = metrics(pnl_c)
+        pnl_c, win_pnls_c = champ_wf(rets, cash, top_k=4, fee_per_change=fee_bps/1e4)
+        mc = wf_metrics(pnl_c, win_pnls_c)
         cost_results[fee_bps] = mc
-        color = "✅" if mc['Sharpe'] > 2 else "⚠️" if mc['Sharpe'] > 0.5 else "❌"
-        print(f"  {color} {fee_bps}bps: Sharpe={mc['Sharpe']:.2f} CAGR={mc['CAGR']*100:.1f}% MDD={mc['MDD']*100:.1f}%")
+        color = "✅" if mc['mean_sharpe'] > 1.0 else "⚠️" if mc['mean_sharpe'] > 0.3 else "❌"
+        print(f"  {color} {fee_bps}bps: Sharpe={mc['mean_sharpe']:.2f} CAGR={mc['CAGR']*100:.1f}% MDD={mc['MDD']*100:.1f}%")
 
     # 종합
     print("\n=== 선물 baseline 종합 ===")
-    full_sharpe = m['Sharpe']
-    if full_sharpe > 5:
+    full_sharpe = m['mean_sharpe']
+    if full_sharpe > 2.0:
         print(f"  🚀 전체 universe Sharpe {full_sharpe:.2f} — 주식만큼 강함!")
-    elif full_sharpe > 2:
+    elif full_sharpe > 1.0:
         print(f"  ✅ 전체 universe Sharpe {full_sharpe:.2f} — 의미 있음, 분산 효과 가능")
-    elif full_sharpe > 0:
+    elif full_sharpe > 0.3:
         print(f"  ⚠️ 전체 universe Sharpe {full_sharpe:.2f} — 약함, 추가 시그널 필요")
     else:
         print(f"  ❌ 전체 universe Sharpe {full_sharpe:.2f} — R70 logic 부적합 (선물 특화 시그널 필요)")

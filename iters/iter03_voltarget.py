@@ -26,18 +26,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES, ENERGY_FUTURES, METAL_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -143,6 +132,7 @@ def champ_wf(rets, cash_rets,
                 w[c] = spare / len(cash_cols)
         return w
 
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -152,6 +142,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -168,8 +159,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def run_universe(name, syms, cash):
@@ -182,13 +175,14 @@ def run_universe(name, syms, cash):
     targets = [(0.05, "vol 5%"), (0.08, "vol 8%"), (0.10, "vol 10%"), (0.15, "vol 15%"), (0.20, "vol 20%")]
     for target, label in targets:
         try:
-            pnl = champ_wf(rets, cash, top_k=3, target_vol=target)
-            m = metrics(pnl)
+            pnl, win_pnls = champ_wf(rets, cash, top_k=3, target_vol=target)
+            m = wf_metrics(pnl, win_pnls)
             results[label] = m
-            color = "🚀" if m['Sharpe'] > 2 and m['MDD'] > -0.25 else \
-                    "✅" if m['Sharpe'] > 1 and m['MDD'] > -0.30 else \
-                    "⚠️" if m['Sharpe'] > 0.5 else "❌"
-            print(f"  {color} {label}: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+            neg = m['neg_windows']; nw = m['n_windows']
+            color = "🚀" if m['mean_sharpe'] > 2.0 and m['MDD'] > -0.25 else \
+                    "✅" if m['mean_sharpe'] > 1.0 and m['MDD'] > -0.30 else \
+                    "⚠️" if m['mean_sharpe'] > 0.3 else "❌"
+            print(f"  {color} {label}: Sharpe={m['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
         except Exception as e:
             print(f"  {label}: ERROR {e}")
             results[label] = {"error": str(e)}
@@ -211,13 +205,13 @@ def main():
     for cat, results in out.items():
         if not results:
             continue
-        best = max(results.items(), key=lambda kv: kv[1].get("Sharpe", -999) if isinstance(kv[1], dict) and 'error' not in kv[1] else -999)
+        best = max(results.items(), key=lambda kv: kv[1].get("mean_sharpe", -999) if isinstance(kv[1], dict) and 'error' not in kv[1] else -999)
         best_each[cat] = (best[0], best[1])
-        print(f"  {cat}: 최고 = {best[0]}: Sharpe {best[1].get('Sharpe', 0):.2f} MDD {best[1].get('MDD', 0)*100:.1f}%")
+        print(f"  {cat}: 최고 = {best[0]}: Sharpe {best[1].get('mean_sharpe', 0):.2f} MDD {best[1].get('MDD', 0)*100:.1f}%")
 
     # 가장 우수한 카테고리/타겟
-    best_cat = max(best_each.items(), key=lambda kv: kv[1][1].get('Sharpe', -999))
-    print(f"\n  🏆 전체 최고: {best_cat[0]} {best_cat[1][0]} → Sharpe {best_cat[1][1]['Sharpe']:.2f}, MDD {best_cat[1][1]['MDD']*100:.1f}%")
+    best_cat = max(best_each.items(), key=lambda kv: kv[1][1].get('mean_sharpe', -999))
+    print(f"\n  🏆 전체 최고: {best_cat[0]} {best_cat[1][0]} → Sharpe {best_cat[1][1]['mean_sharpe']:.2f}, MDD {best_cat[1][1]['MDD']*100:.1f}%")
     if best_cat[1][1].get('MDD', -1) > -0.25:
         print(f"  ✅ MDD < -25% 달성! 실거래 시도 영역")
     elif best_cat[1][1].get('MDD', -1) > -0.50:

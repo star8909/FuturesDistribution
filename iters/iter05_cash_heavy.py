@@ -25,18 +25,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -139,6 +128,7 @@ def champ_wf(rets, cash_rets,
 
         return w
 
+    window_pnls = []
     while s + train + test <= n:
         if s + train < max_p:
             s += step
@@ -148,6 +138,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -164,8 +155,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def main():
@@ -189,28 +182,29 @@ def main():
     results = {}
     for name, ag, ca, k, h in configs:
         try:
-            pnl = champ_wf(rets, cash, top_k=k, agri_alloc=ag, cash_alloc=ca, hmm_high=h)
-            m = metrics(pnl)
+            pnl, win_pnls = champ_wf(rets, cash, top_k=k, agri_alloc=ag, cash_alloc=ca, hmm_high=h)
+            m = wf_metrics(pnl, win_pnls)
             results[name] = m
-            color = "🚀" if m['Sharpe'] > 1.5 and m['MDD'] > -0.20 else \
-                    "✅" if m['Sharpe'] > 1.0 and m['MDD'] > -0.25 else \
-                    "⚠️" if m['Sharpe'] > 0.5 and m['MDD'] > -0.40 else "❌"
-            print(f"  {color} {name}: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+            neg = m['neg_windows']; nw = m['n_windows']
+            color = "🚀" if m['mean_sharpe'] > 2.0 and m['MDD'] > -0.20 else \
+                    "✅" if m['mean_sharpe'] > 1.0 and m['MDD'] > -0.25 else \
+                    "⚠️" if m['mean_sharpe'] > 0.3 and m['MDD'] > -0.40 else "❌"
+            print(f"  {color} {name}: Sharpe={m['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
         except Exception as e:
             print(f"  {name}: ERROR {e}")
             results[name] = {"error": str(e)}
 
     print("\n=== iter05 종합 ===")
-    best_name = max(results, key=lambda k: results[k].get('Sharpe', -999) if isinstance(results[k], dict) and 'error' not in results[k] else -999)
+    best_name = max(results, key=lambda k: results[k].get('mean_sharpe', -999) if isinstance(results[k], dict) and 'error' not in results[k] else -999)
     best = results[best_name]
-    print(f"  최고 Sharpe: {best_name} → {best.get('Sharpe', 0):.2f} MDD={best.get('MDD', 0)*100:.1f}%")
+    print(f"  최고 Sharpe: {best_name} → {best.get('mean_sharpe', 0):.2f} MDD={best.get('MDD', 0)*100:.1f}%")
 
     # MDD가 -25% 안에 있는 best 찾기
     safe = {k: v for k, v in results.items() if isinstance(v, dict) and 'error' not in v and v.get('MDD', -1) > -0.25}
     if safe:
-        safe_best = max(safe, key=lambda k: safe[k]['Sharpe'])
-        print(f"  MDD -25% 이내 최고: {safe_best} → Sharpe {safe[safe_best]['Sharpe']:.2f} MDD {safe[safe_best]['MDD']*100:.1f}%")
-        if safe[safe_best]['Sharpe'] > 1.0:
+        safe_best = max(safe, key=lambda k: safe[k]['mean_sharpe'])
+        print(f"  MDD -25% 이내 최고: {safe_best} → Sharpe {safe[safe_best]['mean_sharpe']:.2f} MDD {safe[safe_best]['MDD']*100:.1f}%")
+        if safe[safe_best]['mean_sharpe'] > 1.0:
             print(f"  ✅ 실거래 가능 영역 진입!")
     else:
         print(f"  ❌ 모든 config가 MDD -25% 초과")

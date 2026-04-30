@@ -33,18 +33,7 @@ from hmmlearn.hmm import GaussianHMM
 from src.config import RESULTS_DIR
 from src.data_loader import load_close
 from src.futures_universe import AGRI_FUTURES, ENERGY_FUTURES, METAL_FUTURES
-
-
-def metrics(pnl):
-    pnl = pnl.dropna()
-    if len(pnl) == 0:
-        return {"CAGR": 0, "Sharpe": 0, "MDD": 0}
-    eq = (1 + pnl).cumprod()
-    n_years = max((pnl.index[-1] - pnl.index[0]).days / 365.25, 1e-9)
-    cagr = float(eq.iloc[-1] ** (1 / n_years) - 1)
-    sharpe = float(pnl.mean() / pnl.std(ddof=1) * np.sqrt(252)) if pnl.std(ddof=1) > 0 else 0
-    cm = eq.cummax()
-    return {"CAGR": cagr, "Sharpe": sharpe, "MDD": float((eq / cm - 1).min())}
+from src.backtest import metrics, wf_metrics
 
 
 def champ_wf(rets, cash_rets,
@@ -153,6 +142,7 @@ def champ_wf(rets, cash_rets,
         return w
 
     locked_until = -1
+    window_pnls = []
 
     while s + train + test <= n:
         if s + train < max_p:
@@ -163,6 +153,7 @@ def champ_wf(rets, cash_rets,
             s += step
             continue
         test_idx = full.iloc[s + train:s + train + test]
+        win_pnl = pd.Series(0.0, index=test_idx.index)
         for i in range(len(test_idx)):
             ts = test_idx.index[i]
             cost = 0.0
@@ -205,8 +196,10 @@ def champ_wf(rets, cash_rets,
             r = float((test_idx.iloc[i] * w_eff).sum()) - cost
             pnl.loc[ts] = r
             used.loc[ts] = True
+            win_pnl.iloc[i] = r
+        window_pnls.append(win_pnl)
         s += step
-    return pnl[used]
+    return pnl[used], window_pnls
 
 
 def run(name, syms, cash, configs):
@@ -218,15 +211,15 @@ def run(name, syms, cash, configs):
     results = {}
     for cfg_name, vol, cf, dd, lock in configs:
         try:
-            pnl = champ_wf(rets, cash, target_vol=vol, cash_floor=cf, dd_stop=dd, lock_days=lock)
-            m = metrics(pnl)
+            pnl, win_pnls = champ_wf(rets, cash, target_vol=vol, cash_floor=cf, dd_stop=dd, lock_days=lock)
+            m = wf_metrics(pnl, win_pnls)
             results[cfg_name] = m
             mdd_ok = m['MDD'] > -0.20
-            sharpe_ok = m['Sharpe'] > 1.0
-            color = "🚀" if mdd_ok and sharpe_ok and m['Sharpe'] > 1.5 else \
-                    "✅" if mdd_ok and sharpe_ok else \
-                    "⚠️" if m['Sharpe'] > 0.5 else "❌"
-            print(f"  {color} {cfg_name}: Sharpe={m['Sharpe']:.2f} CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
+            neg = m['neg_windows']; nw = m['n_windows']
+            color = "🚀" if mdd_ok and m['mean_sharpe'] > 2.0 else \
+                    "✅" if mdd_ok and m['mean_sharpe'] > 1.0 else \
+                    "⚠️" if m['mean_sharpe'] > 0.3 else "❌"
+            print(f"  {color} {cfg_name}: Sharpe={m['mean_sharpe']:.2f} (win {nw-neg}/{nw}) CAGR={m['CAGR']*100:.1f}% MDD={m['MDD']*100:.1f}%")
         except Exception as e:
             print(f"  {cfg_name}: ERROR {e}")
             results[cfg_name] = {"error": str(e)}
@@ -268,22 +261,22 @@ def main():
                 all_results.append((cat, cfg, m))
 
     # MDD < -20% + Sharpe > 1.0 통과한 것만
-    safe = [r for r in all_results if r[2].get('MDD', -1) > -0.20 and r[2].get('Sharpe', 0) > 1.0]
+    safe = [r for r in all_results if r[2].get('MDD', -1) > -0.20 and r[2].get('mean_sharpe', 0) > 1.0]
     if safe:
-        safe.sort(key=lambda r: r[2]['Sharpe'], reverse=True)
+        safe.sort(key=lambda r: r[2]['mean_sharpe'], reverse=True)
         print(f"  🎯 실거래 가능 (MDD > -20% & Sharpe > 1.0):")
         for cat, cfg, m in safe[:5]:
-            print(f"    🚀 {cat} | {cfg}: Sharpe={m['Sharpe']:.2f} MDD={m['MDD']*100:.1f}%")
+            print(f"    🚀 {cat} | {cfg}: Sharpe={m['mean_sharpe']:.2f} MDD={m['MDD']*100:.1f}%")
     else:
-        # 차선: MDD -25% + Sharpe 0.7
-        next_best = [r for r in all_results if r[2].get('MDD', -1) > -0.25 and r[2].get('Sharpe', 0) > 0.7]
+        # 차선: MDD -25% + Sharpe 0.3
+        next_best = [r for r in all_results if r[2].get('MDD', -1) > -0.25 and r[2].get('mean_sharpe', 0) > 0.3]
         if next_best:
-            next_best.sort(key=lambda r: r[2]['Sharpe'], reverse=True)
-            print(f"  ⚠️ 차선 (MDD > -25% & Sharpe > 0.7):")
+            next_best.sort(key=lambda r: r[2]['mean_sharpe'], reverse=True)
+            print(f"  ⚠️ 차선 (MDD > -25% & Sharpe > 0.3):")
             for cat, cfg, m in next_best[:5]:
-                print(f"    ✅ {cat} | {cfg}: Sharpe={m['Sharpe']:.2f} MDD={m['MDD']*100:.1f}%")
+                print(f"    ✅ {cat} | {cfg}: Sharpe={m['mean_sharpe']:.2f} MDD={m['MDD']*100:.1f}%")
         else:
-            print(f"  ❌ MDD -25% 이내 + Sharpe 0.7 통과 없음")
+            print(f"  ❌ MDD -25% 이내 + Sharpe 0.3 통과 없음")
 
     out_path = RESULTS_DIR / "iter06_combined.json"
     out_path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
