@@ -1,0 +1,10 @@
+{
+  "round": 8,
+  "strategy": "carry_proxy_126d",
+  "wf_sharpe": 0.005505080472912484,
+  "full_cagr_pct": -4.554803910663363,
+  "full_mdd_pct": -81.93244714339538,
+  "win_rate": 48.76979293544458,
+  "n_days": 4105,
+  "elapsed_sec": 0.009521961212158203
+}

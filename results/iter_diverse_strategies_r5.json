@@ -1,0 +1,10 @@
+{
+  "round": 5,
+  "strategy": "trend_filter_momentum",
+  "wf_sharpe": 0.10761951779630101,
+  "full_cagr_pct": -0.282635279155119,
+  "full_mdd_pct": -65.87229087798688,
+  "win_rate": 44.19001218026797,
+  "n_days": 4105,
+  "elapsed_sec": 0.010630607604980469
+}

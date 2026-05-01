@@ -1,0 +1,10 @@
+{
+  "round": 1,
+  "strategy": "mean_reversion_20d_z2",
+  "wf_sharpe": 0.15299382300562667,
+  "full_cagr_pct": 1.1574899910336,
+  "full_mdd_pct": -40.58627958548014,
+  "win_rate": 9.037758830694276,
+  "n_days": 4105,
+  "elapsed_sec": 0.017033100128173828
+}

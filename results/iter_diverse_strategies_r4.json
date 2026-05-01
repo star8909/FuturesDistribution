@@ -1,0 +1,10 @@
+{
+  "round": 4,
+  "strategy": "bollinger_breakout_20d",
+  "wf_sharpe": -2.636790142967584,
+  "full_cagr_pct": -62.11762518131467,
+  "full_mdd_pct": -99.99998728008562,
+  "win_rate": 40.34104750304507,
+  "n_days": 4105,
+  "elapsed_sec": 0.013126373291015625
+}

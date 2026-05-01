@@ -1,0 +1,10 @@
+{
+  "round": 2,
+  "strategy": "vol_breakout_20d",
+  "wf_sharpe": -3.4505337032180137,
+  "full_cagr_pct": -78.8122952176833,
+  "full_mdd_pct": -99.99999999901762,
+  "win_rate": 44.67722289890377,
+  "n_days": 4105,
+  "elapsed_sec": 0.011531591415405273
+}

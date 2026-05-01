@@ -1,0 +1,29 @@
+{
+  "round": 15,
+  "config": "Agri_ETF_8d",
+  "params": {
+    "name": "Agri_ETF_8d",
+    "syms": [
+      "DBA",
+      "CORN",
+      "WEAT",
+      "SOYB"
+    ],
+    "top_k": 2,
+    "alpha": 1.0,
+    "mom": [
+      [
+        8,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": -0.20860380763536862,
+  "median_sharpe": 0.0005046646450996596,
+  "full_cagr_pct": -2.454414448221076,
+  "full_mdd_pct": -19.185536393801616,
+  "n_windows": 27,
+  "neg_windows": 13,
+  "win_rate": 51.85185185185185,
+  "elapsed_sec": 3.112424850463867
+}

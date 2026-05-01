@@ -1,0 +1,10 @@
+{
+  "round": 6,
+  "strategy": "seasonality_monday",
+  "wf_sharpe": 0.4236758071464644,
+  "full_cagr_pct": 2.598507790841831,
+  "full_mdd_pct": -14.651054311156585,
+  "win_rate": 10.182704019488428,
+  "n_days": 4105,
+  "elapsed_sec": 0.003999233245849609
+}
