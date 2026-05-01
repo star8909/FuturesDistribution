@@ -166,15 +166,15 @@ def strategy_pairs_zw_zc(rets, prices):
 
 
 def strategy_volatility_target(rets, lookback=63, target_vol=0.10):
-    """Equal-weight long with vol targeting."""
-    pos = pd.DataFrame(1.0 / rets.shape[1], index=rets.index, columns=rets.columns)
-    # Scale by inverse realized vol
-    vol = rets.std() * np.sqrt(252)
-    if vol > 0:
-        scale = target_vol / float(vol)
+    """Equal-weight long with vol targeting (per-asset, scalar avg)."""
+    n = rets.shape[1]
+    pos = pd.DataFrame(1.0 / n, index=rets.index, columns=rets.columns)
+    # Average across assets, then daily Sharpe-style scaling
+    portfolio_vol = float((rets.mean(axis=1)).std() * np.sqrt(252))
+    if portfolio_vol > 0:
+        scale = target_vol / portfolio_vol
         pos = pos * scale
     pnl = (rets * pos.shift(1).fillna(0)).sum(axis=1)
-    # Cap at 0.05/day to prevent leverage explosion
     pnl = pnl.clip(-0.05, 0.05)
     return pnl
 
