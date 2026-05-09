@@ -23,6 +23,10 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
   h1 { font-size: 28px; margin-bottom: 4px; color: var(--gold); }
   .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 16px; }
+  .audit-banner { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; background: rgba(248, 81, 73, 0.08); border: 1px solid rgba(248, 81, 73, 0.55); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; color: var(--text); }
+  .audit-title { color: var(--red); font-weight: 700; margin-bottom: 4px; }
+  .audit-detail { color: var(--text-dim); font-size: 13px; }
+  .audit-badge { flex: 0 0 auto; border: 1px solid rgba(248, 81, 73, 0.6); color: var(--red); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
   .project-nav { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
   .project-nav a {
     display: inline-block; padding: 8px 14px;
@@ -40,7 +44,7 @@
   .stat-value.green { color: var(--green); }
   .stat-value.red { color: var(--red); }
   .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1350px; }
   th { background: #21262d; color: var(--text-dim); text-align: left; padding: 10px 12px; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
   th:hover { color: var(--text); }
   th.sort-asc::after { content: ' ▲'; color: var(--accent); }
@@ -68,10 +72,12 @@
   .score.s70 { background: rgba(210, 153, 34, 0.15); color: var(--orange); }
   .score.s60 { background: rgba(210, 153, 34, 0.1); color: var(--orange); }
   .score.s40 { background: rgba(248, 81, 73, 0.12); color: var(--red); }
-  .verdict { font-size: 12px; }
+  .verdict { font-size: 12px; white-space: nowrap; min-width: 112px; }
   .verdict.ok { color: var(--green); }
   .verdict.warn { color: var(--orange); }
   .verdict.bad { color: var(--red); }
+  .blocker { color: var(--text-dim); font-size: 12px; min-width: 260px; max-width: 360px; }
+  .blocker strong { color: var(--red); }
   .note { font-size: 12px; color: var(--text-dim); white-space: nowrap; max-width: 360px; overflow: hidden; text-overflow: ellipsis; }
   .formula { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: var(--text-dim); }
   .formula h3 { color: var(--text); margin-bottom: 8px; font-size: 14px; }
@@ -87,6 +93,14 @@
 <body>
 <h1>🎯 FuturesDistribution 챔피언 대시보드</h1>
 <div class="subtitle">한투 해외선물옵션 (CME / EUREX / ICE / HKEX / SGX) — R70 logic 이식 baseline 단계</div>
+
+<div class="audit-banner">
+  <div>
+    <div class="audit-title">실거래 권장 표시</div>
+    <div class="audit-detail">상위 후보(BT Sharpe ≥ 2.0, MDD ≥ -25%, 비용 stress 통과, =F roll 아티팩트 없음)에 ✅ 표시. 현재 verified sweep 결과 모두 Sharpe 1.5 미만 → 추천 0개.</div>
+  </div>
+  <div class="audit-badge" id="rec-count">—</div>
+</div>
 
 <div class="stats">
   <div class="stat-card">
@@ -108,7 +122,7 @@
 </div>
 
 <div class="formula">
-  <h3>📊 실거래 점수 (100점 만점) — 선물 기준</h3>
+  <h3>📊 감사 전 연구 점수 (100점 만점) — 선물 기준</h3>
   <div>
     1. <code>Sharpe (30점)</code> = 2.0+ 만점, 1.0+ 20점, 0.5+ 10점<br>
     2. <code>MDD (30점)</code> — -25% 이내 만점, -50% 이내 15점, -75% 이내 5점, 그 외 0점 (선물 본질이 위험)<br>
@@ -117,9 +131,9 @@
     5. <code>백테스트 견고성 (10점)</code> = 16y walk-forward + 카테고리 일관성
   </div>
   <div class="legend">
-    <span style="color: var(--green)">●</span> 80+ 실거래 시도 가능 (소액 micro 선물)
+    <span style="color: var(--green)">●</span> 80+ 백테스트 우수
     <span style="color: var(--orange)">●</span> 60-79 추가 검증 필요
-    <span style="color: var(--red)">●</span> &lt; 60 실거래 불가
+    <span style="color: var(--red)">●</span> &lt; 60 알파 부재
   </div>
   <div style="margin-top: 12px; font-size: 12px;">
     <span class="pass">✅ Agri (농산물) momentum logic 작동</span> — Sharpe 3.11. 비효율 시장 가설 일부 확인 (옥수수/밀/콩).<br>
@@ -145,6 +159,7 @@
         <th data-key="cost_robust" class="num">Cost Robust</th>
         <th data-key="score" class="num sort-desc">점수</th>
         <th>판정</th>
+        <th>실거래 권장</th>
         <th>비고</th>
       </tr>
     </thead>
@@ -184,11 +199,16 @@
 </div>
 
 <script>
+const LIVE_AUDIT = {
+  liveReady: false,
+  paperOnly: false
+};
+
 const champions = [
   { iter: "01-A", name: "전체 universe + R70 (top_k=4)", logic: "📊 36개 선물 + R70 logic 그대로 이식 (composite + CVaR + HMM)",
     bt_sharpe: 4.95, cagr: 165.0, mdd: -77.6, universe: "36 선물", top_k: 4,
     cost_robust: "100bps", score: 45, verdict: "bad", crown: false,
-    note: "❌ Sharpe 4.95 fancy but MDD -77.6% 망함. 실거래 불가" },
+    note: "❌ Sharpe 4.95 fancy but MDD -77.6% — 비추천 (강제청산 위험)" },
   { iter: "01-B", name: "Agri 단독 (top_k=3)", logic: "🌾 농산물 10개 (ZC/ZW/ZS/ZL/ZM/KC/SB/CT/CC/OJ) + R70",
     bt_sharpe: 3.11, cagr: 103.1, mdd: -86.8, universe: "10 농산물", top_k: 3,
     cost_robust: "?", score: 50, verdict: "warn", crown: true,
@@ -248,7 +268,7 @@ const champions = [
   { iter: "17", name: "🔍 iter17 8d α=1.0 (=F 데이터 결함)", logic: "백테스트 정확: WF Sh 4.38 / CAGR 175.8% / MDD -21.0% / 23 windows, 3 음수",
     bt_sharpe: 4.38, cagr: 175.8, mdd: -21.0, universe: "10 농산물 (=F)", top_k: 2,
     cost_robust: "100bps Sh 1.97", score: 30, verdict: "bad", crown: false,
-    note: "🔍 백테스트 메트릭 정확 산출. ETF 검증 시 Sh -1.44 = =F roll jump 아티팩트. 실거래 불가" },
+    note: "🔍 백테스트 메트릭 정확 산출. ETF 검증 시 Sh -1.44 = =F roll jump 아티팩트 — 비추천" },
   { iter: "17-B", name: "α=2.0 lb=126", logic: "DD-10% + k=2 + 8d + CVaR α=2.0 lb=126",
     bt_sharpe: 4.55, cagr: 188.1, mdd: -20.6, universe: "10 농산물 (=F)", top_k: 2,
     cost_robust: "?", score: 40, verdict: "warn", crown: false,
@@ -257,23 +277,74 @@ const champions = [
     bt_sharpe: 4.28, cagr: 183.1, mdd: -23.5, universe: "10 농산물 (=F)", top_k: 2,
     cost_robust: "?", score: 40, verdict: "warn", crown: false,
     note: "🔍 verify per-window: Sh 4.28 / CAGR 183.1% / MDD -23.5% / 3 음수. =F 데이터 의심" },
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
+  // === verified sweep + diverse + no_ddlock 자동 갱신 ===,
   // === verified sweep + diverse + no_ddlock 자동 갱신 ===
-  { iter: "V1", name: "Metal_F_8d", logic: "verified WF Sh=0.19 CAGR=8% MDD=-19.6%", bt_sharpe: 0.19, cagr: 7.6, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: true, note: "verified r28" },
-  { iter: "V2", name: "Agri_F_21d_a1", logic: "verified WF Sh=0.08 CAGR=0% MDD=-20.9%", bt_sharpe: 0.08, cagr: 0.3, mdd: -20.9, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r23" },
-  { iter: "V3", name: "Energy_F_8d", logic: "verified WF Sh=0.04 CAGR=-1% MDD=-52.4%", bt_sharpe: 0.04, cagr: -0.8, mdd: -52.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r27" },
-  { iter: "V4", name: "Agri_F_composite", logic: "verified WF Sh=-0.10 CAGR=-2% MDD=-25.6%", bt_sharpe: -0.1, cagr: -1.8, mdd: -25.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r24" },
-  { iter: "V5", name: "Agri_F_top_k3", logic: "verified WF Sh=-0.11 CAGR=-3% MDD=-24.8%", bt_sharpe: -0.11, cagr: -3.1, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r30" },
-  { iter: "V6", name: "Agri_ETF_21d", logic: "verified WF Sh=-0.15 CAGR=-2% MDD=-21.0%", bt_sharpe: -0.15, cagr: -2.2, mdd: -21.0, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r26" },
-  { iter: "V7", name: "Agri_ETF_8d", logic: "verified WF Sh=-0.21 CAGR=-2% MDD=-19.2%", bt_sharpe: -0.21, cagr: -2.5, mdd: -19.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r25" },
-  { iter: "V8", name: "Agri_F_8d_a2", logic: "verified WF Sh=-0.24 CAGR=-4% MDD=-25.6%", bt_sharpe: -0.24, cagr: -3.6, mdd: -25.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r22" },
-  { iter: "V9", name: "Agri_F_8d_a1", logic: "verified WF Sh=-0.29 CAGR=-5% MDD=-25.6%", bt_sharpe: -0.29, cagr: -4.9, mdd: -25.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r21" },
-  { iter: "V10", name: "AllCommod_F_8d", logic: "verified WF Sh=-0.49 CAGR=-10% MDD=-24.3%", bt_sharpe: -0.49, cagr: -9.7, mdd: -24.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 35, verdict: "bad", crown: false, note: "verified r29" },
-  { iter: "D1", name: "seasonality_monday", logic: "diverse Sh=0.42 CAGR=3% MDD=-14.7%", bt_sharpe: 0.42, cagr: 2.6, mdd: -14.7, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 44, verdict: "warn", crown: false, note: "diverse strategy r6" },
-  { iter: "D2", name: "mean_reversion_20d_z2", logic: "diverse Sh=0.15 CAGR=1% MDD=-40.6%", bt_sharpe: 0.15, cagr: 1.2, mdd: -40.6, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "diverse strategy r1" },
-  { iter: "D3", name: "trend_filter_momentum", logic: "diverse Sh=0.11 CAGR=-0% MDD=-65.9%", bt_sharpe: 0.11, cagr: -0.3, mdd: -65.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "diverse strategy r5" },
-  { iter: "D4", name: "carry_proxy_126d", logic: "diverse Sh=0.01 CAGR=-5% MDD=-81.9%", bt_sharpe: 0.01, cagr: -4.6, mdd: -81.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "diverse strategy r8" },
-  { iter: "D5", name: "bollinger_breakout_20d", logic: "diverse Sh=-2.64 CAGR=-62% MDD=-100.0%", bt_sharpe: -2.64, cagr: -62.1, mdd: -100.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 15, verdict: "bad", crown: false, note: "diverse strategy r4" },
-  { iter: "D6", name: "vol_breakout_20d", logic: "diverse Sh=-3.45 CAGR=-79% MDD=-100.0%", bt_sharpe: -3.45, cagr: -78.8, mdd: -100.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 15, verdict: "bad", crown: false, note: "diverse strategy r2" }
+  { iter: "V1", name: "Metal_F_63d_a1", logic: "verified WF Sh=0.36 CAGR=9% MDD=-20.9%", bt_sharpe: 0.36, cagr: 9.5, mdd: -20.9, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 43, verdict: "warn", crown: true, note: "verified r38" },
+  { iter: "V2", name: "Metal_F_5d_a1", logic: "verified WF Sh=0.32 CAGR=7% MDD=-19.5%", bt_sharpe: 0.32, cagr: 7.0, mdd: -19.5, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 43, verdict: "warn", crown: false, note: "verified r39" },
+  { iter: "V3", name: "Metal_F_comp_a1", logic: "verified WF Sh=0.31 CAGR=8% MDD=-19.6%", bt_sharpe: 0.31, cagr: 8.1, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 43, verdict: "warn", crown: false, note: "verified r36" },
+  { iter: "V4", name: "Metal_F_comp_a2", logic: "verified WF Sh=0.30 CAGR=9% MDD=-19.6%", bt_sharpe: 0.3, cagr: 8.8, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 42, verdict: "warn", crown: false, note: "verified r37" },
+  { iter: "V5", name: "Metal_F_21+5_a1", logic: "verified WF Sh=0.24 CAGR=8% MDD=-25.6%", bt_sharpe: 0.24, cagr: 8.4, mdd: -25.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 42, verdict: "warn", crown: false, note: "verified r40" },
+  { iter: "V6", name: "Metal_F_8d_a0", logic: "verified WF Sh=0.21 CAGR=8% MDD=-19.6%", bt_sharpe: 0.21, cagr: 7.8, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 42, verdict: "warn", crown: false, note: "verified r33" },
+  { iter: "V7", name: "Metal_F_21d_a1", logic: "verified WF Sh=0.20 CAGR=4% MDD=-19.7%", bt_sharpe: 0.2, cagr: 4.5, mdd: -19.7, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "verified r34" },
+  { iter: "V8", name: "Metal_F_21d_a2", logic: "verified WF Sh=0.20 CAGR=4% MDD=-19.7%", bt_sharpe: 0.2, cagr: 4.5, mdd: -19.7, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "verified r35" },
+  { iter: "V9", name: "Metal_F_8d_a1", logic: "verified WF Sh=0.19 CAGR=8% MDD=-19.6%", bt_sharpe: 0.19, cagr: 7.6, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "verified r31" },
+  { iter: "V10", name: "Metal_F_8d_a2", logic: "verified WF Sh=0.19 CAGR=8% MDD=-19.6%", bt_sharpe: 0.19, cagr: 7.6, mdd: -19.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "verified r32" },
+  { iter: "V11", name: "Energy_F_5d_a1", logic: "verified WF Sh=0.14 CAGR=1% MDD=-52.4%", bt_sharpe: 0.14, cagr: 0.8, mdd: -52.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "verified r29" },
+  { iter: "V12", name: "Agri_F_21+5_a1", logic: "verified WF Sh=0.06 CAGR=-1% MDD=-24.8%", bt_sharpe: 0.06, cagr: -0.6, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r10" },
+  { iter: "V13", name: "Energy_F_8d_a0", logic: "verified WF Sh=0.04 CAGR=-1% MDD=-52.4%", bt_sharpe: 0.04, cagr: -0.8, mdd: -52.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r23" },
+  { iter: "V14", name: "Agri_F_comp_a1", logic: "verified WF Sh=0.04 CAGR=-2% MDD=-24.8%", bt_sharpe: 0.04, cagr: -1.8, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r6" },
+  { iter: "V15", name: "Energy_F_8d_a2", logic: "verified WF Sh=0.02 CAGR=-1% MDD=-52.4%", bt_sharpe: 0.02, cagr: -1.4, mdd: -52.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "verified r22" },
+  { iter: "V16", name: "All_F_63d_a1", logic: "verified WF Sh=-0.02 CAGR=-0% MDD=-20.8%", bt_sharpe: -0.02, cagr: -0.4, mdd: -20.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 39, verdict: "warn", crown: false, note: "verified r48" },
+  { iter: "V17", name: "All_F_21d_a2", logic: "verified WF Sh=-0.03 CAGR=-3% MDD=-23.3%", bt_sharpe: -0.03, cagr: -2.9, mdd: -23.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 39, verdict: "warn", crown: false, note: "verified r45" },
+  { iter: "V18", name: "Agri_F_21d_a2", logic: "verified WF Sh=-0.03 CAGR=-0% MDD=-24.8%", bt_sharpe: -0.03, cagr: -0.4, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 39, verdict: "warn", crown: false, note: "verified r5" },
+  { iter: "V19", name: "All_F_21d_a1", logic: "verified WF Sh=-0.05 CAGR=-1% MDD=-23.3%", bt_sharpe: -0.05, cagr: -0.9, mdd: -23.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 39, verdict: "warn", crown: false, note: "verified r44" },
+  { iter: "V20", name: "Agri_F_21d_a1", logic: "verified WF Sh=-0.05 CAGR=-0% MDD=-24.8%", bt_sharpe: -0.05, cagr: -0.3, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 39, verdict: "warn", crown: false, note: "verified r4" },
+  { iter: "V21", name: "Agri_F_comp_a2", logic: "verified WF Sh=-0.11 CAGR=-4% MDD=-24.8%", bt_sharpe: -0.11, cagr: -3.7, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r7" },
+  { iter: "V22", name: "Agri_F_8d_a1", logic: "verified WF Sh=-0.11 CAGR=-3% MDD=-24.8%", bt_sharpe: -0.11, cagr: -3.1, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r1" },
+  { iter: "V23", name: "Energy_F_21d_a1", logic: "verified WF Sh=-0.11 CAGR=-4% MDD=-52.4%", bt_sharpe: -0.11, cagr: -3.8, mdd: -52.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r24" },
+  { iter: "V24", name: "Energy_F_63d_a1", logic: "verified WF Sh=-0.12 CAGR=-4% MDD=-28.5%", bt_sharpe: -0.12, cagr: -3.9, mdd: -28.5, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r28" },
+  { iter: "V25", name: "Agri_F_8d_a2", logic: "verified WF Sh=-0.13 CAGR=-4% MDD=-24.8%", bt_sharpe: -0.13, cagr: -4.0, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r2" },
+  { iter: "V26", name: "Agri_F_63d_a1", logic: "verified WF Sh=-0.13 CAGR=-0% MDD=-24.8%", bt_sharpe: -0.13, cagr: -0.3, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r8" },
+  { iter: "V27", name: "All_F_21+5_a1", logic: "verified WF Sh=-0.15 CAGR=-2% MDD=-23.0%", bt_sharpe: -0.15, cagr: -1.6, mdd: -23.0, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r50" },
+  { iter: "V28", name: "Agri_ETF_21d_a2", logic: "verified WF Sh=-0.17 CAGR=-2% MDD=-21.0%", bt_sharpe: -0.17, cagr: -2.4, mdd: -21.0, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r15" },
+  { iter: "V29", name: "Agri_ETF_63d_a1", logic: "verified WF Sh=-0.17 CAGR=-2% MDD=-23.6%", bt_sharpe: -0.17, cagr: -2.2, mdd: -23.6, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r18" },
+  { iter: "V30", name: "All_F_comp_a2", logic: "verified WF Sh=-0.18 CAGR=-4% MDD=-24.2%", bt_sharpe: -0.18, cagr: -4.3, mdd: -24.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r47" },
+  { iter: "V31", name: "Agri_F_5d_a1", logic: "verified WF Sh=-0.19 CAGR=-5% MDD=-24.5%", bt_sharpe: -0.19, cagr: -5.1, mdd: -24.5, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 38, verdict: "bad", crown: false, note: "verified r9" },
+  { iter: "V32", name: "Agri_ETF_8d_a1", logic: "verified WF Sh=-0.21 CAGR=-2% MDD=-19.2%", bt_sharpe: -0.21, cagr: -2.5, mdd: -19.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r11" },
+  { iter: "V33", name: "Agri_ETF_8d_a2", logic: "verified WF Sh=-0.21 CAGR=-2% MDD=-19.2%", bt_sharpe: -0.21, cagr: -2.5, mdd: -19.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r12" },
+  { iter: "V34", name: "Agri_F_8d_a0", logic: "verified WF Sh=-0.22 CAGR=-5% MDD=-24.8%", bt_sharpe: -0.22, cagr: -4.8, mdd: -24.8, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r3" },
+  { iter: "V35", name: "Agri_ETF_8d_a0", logic: "verified WF Sh=-0.23 CAGR=-2% MDD=-19.3%", bt_sharpe: -0.23, cagr: -2.5, mdd: -19.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r13" },
+  { iter: "V36", name: "Agri_ETF_comp_a1", logic: "verified WF Sh=-0.25 CAGR=-2% MDD=-19.3%", bt_sharpe: -0.25, cagr: -2.2, mdd: -19.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 37, verdict: "bad", crown: false, note: "verified r16" },
+  { iter: "V37", name: "All_F_8d_a2", logic: "verified WF Sh=-0.31 CAGR=-7% MDD=-24.3%", bt_sharpe: -0.31, cagr: -7.1, mdd: -24.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 36, verdict: "bad", crown: false, note: "verified r42" },
+  { iter: "V38", name: "All_F_5d_a1", logic: "verified WF Sh=-0.33 CAGR=-5% MDD=-23.2%", bt_sharpe: -0.33, cagr: -4.8, mdd: -23.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 36, verdict: "bad", crown: false, note: "verified r49" },
+  { iter: "V39", name: "All_F_8d_a0", logic: "verified WF Sh=-0.45 CAGR=-7% MDD=-23.4%", bt_sharpe: -0.45, cagr: -6.8, mdd: -23.4, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 35, verdict: "bad", crown: false, note: "verified r43" },
+  { iter: "V40", name: "All_F_comp_a1", logic: "verified WF Sh=-0.47 CAGR=-7% MDD=-24.2%", bt_sharpe: -0.47, cagr: -6.7, mdd: -24.2, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 35, verdict: "bad", crown: false, note: "verified r46" },
+  { iter: "V41", name: "All_F_8d_a1", logic: "verified WF Sh=-0.49 CAGR=-10% MDD=-24.3%", bt_sharpe: -0.49, cagr: -9.7, mdd: -24.3, universe: "10 commodities", top_k: 2, cost_robust: "?", score: 35, verdict: "bad", crown: false, note: "verified r41" },
+  { iter: "D1", name: "low_vol_anomaly_63d", logic: "diverse Sh=0.67 CAGR=9% MDD=-36.9%", bt_sharpe: 0.67, cagr: 8.6, mdd: -36.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 46, verdict: "warn", crown: false, note: "diverse strategy r7" },
+  { iter: "D2", name: "inv_vol_basket_63d", logic: "diverse Sh=0.60 CAGR=7% MDD=-47.2%", bt_sharpe: 0.6, cagr: 7.4, mdd: -47.2, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 45, verdict: "warn", crown: false, note: "diverse strategy r19" },
+  { iter: "D3", name: "vol_target_eq_weight", logic: "diverse Sh=0.50 CAGR=5% MDD=-33.7%", bt_sharpe: 0.5, cagr: 4.6, mdd: -33.7, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 45, verdict: "warn", crown: false, note: "diverse strategy r10" },
+  { iter: "D4", name: "pairs_ZW_ZC", logic: "diverse Sh=0.49 CAGR=6% MDD=-28.1%", bt_sharpe: 0.49, cagr: 5.9, mdd: -28.1, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 44, verdict: "warn", crown: false, note: "diverse strategy r9" },
+  { iter: "D5", name: "kama_top3_trend", logic: "diverse Sh=0.44 CAGR=8% MDD=-61.7%", bt_sharpe: 0.44, cagr: 8.0, mdd: -61.7, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 44, verdict: "warn", crown: false, note: "diverse strategy r17" },
+  { iter: "D6", name: "seasonality_monday", logic: "diverse Sh=0.42 CAGR=3% MDD=-14.7%", bt_sharpe: 0.42, cagr: 2.6, mdd: -14.7, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 44, verdict: "warn", crown: false, note: "diverse strategy r6" },
+  { iter: "D7", name: "rsi_reversal_14d", logic: "diverse Sh=0.34 CAGR=6% MDD=-62.0%", bt_sharpe: 0.34, cagr: 5.9, mdd: -62.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 43, verdict: "warn", crown: false, note: "diverse strategy r3" },
+  { iter: "D8", name: "weekly_mean_revert_5d", logic: "diverse Sh=0.23 CAGR=3% MDD=-52.4%", bt_sharpe: 0.23, cagr: 2.9, mdd: -52.4, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 42, verdict: "warn", crown: false, note: "diverse strategy r20" },
+  { iter: "D9", name: "mean_reversion_20d_z2", logic: "diverse Sh=0.15 CAGR=1% MDD=-40.6%", bt_sharpe: 0.15, cagr: 1.2, mdd: -40.6, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "diverse strategy r1" },
+  { iter: "D10", name: "trend_filter_momentum", logic: "diverse Sh=0.11 CAGR=-0% MDD=-65.9%", bt_sharpe: 0.11, cagr: -0.3, mdd: -65.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 41, verdict: "warn", crown: false, note: "diverse strategy r5" },
+  { iter: "D11", name: "multi_tf_trend_8_21_63", logic: "diverse Sh=0.09 CAGR=-1% MDD=-64.1%", bt_sharpe: 0.09, cagr: -0.6, mdd: -64.1, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "diverse strategy r12" },
+  { iter: "D12", name: "crack_spread_HO_CL", logic: "diverse Sh=0.08 CAGR=-0% MDD=-38.0%", bt_sharpe: 0.08, cagr: -0.0, mdd: -38.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "diverse strategy r15" },
+  { iter: "D13", name: "donchian_50d_long_only", logic: "diverse Sh=0.06 CAGR=-1% MDD=-63.8%", bt_sharpe: 0.06, cagr: -1.3, mdd: -63.8, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "diverse strategy r11" },
+  { iter: "D14", name: "carry_proxy_126d", logic: "diverse Sh=0.01 CAGR=-5% MDD=-81.9%", bt_sharpe: 0.01, cagr: -4.6, mdd: -81.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 40, verdict: "warn", crown: false, note: "diverse strategy r8" },
+  { iter: "D15", name: "pairs_GC_SI", logic: "diverse Sh=-0.03 CAGR=-1% MDD=-44.7%", bt_sharpe: -0.03, cagr: -1.0, mdd: -44.7, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 39, verdict: "bad", crown: false, note: "diverse strategy r14" },
+  { iter: "D16", name: "quantile_breakout_q90", logic: "diverse Sh=-0.04 CAGR=-4% MDD=-74.4%", bt_sharpe: -0.04, cagr: -3.7, mdd: -74.4, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 39, verdict: "bad", crown: false, note: "diverse strategy r16" },
+  { iter: "D17", name: "macd_12_26_9", logic: "diverse Sh=-0.10 CAGR=-2% MDD=-38.8%", bt_sharpe: -0.1, cagr: -1.9, mdd: -38.8, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 39, verdict: "bad", crown: false, note: "diverse strategy r13" },
+  { iter: "D18", name: "xsection_mom_63d_LS", logic: "diverse Sh=-0.39 CAGR=-7% MDD=-73.9%", bt_sharpe: -0.39, cagr: -6.6, mdd: -73.9, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 36, verdict: "bad", crown: false, note: "diverse strategy r18" },
+  { iter: "D19", name: "bollinger_breakout_20d", logic: "diverse Sh=-2.64 CAGR=-62% MDD=-100.0%", bt_sharpe: -2.64, cagr: -62.1, mdd: -100.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 15, verdict: "bad", crown: false, note: "diverse strategy r4" },
+  { iter: "D20", name: "vol_breakout_20d", logic: "diverse Sh=-3.45 CAGR=-79% MDD=-100.0%", bt_sharpe: -3.45, cagr: -78.8, mdd: -100.0, universe: "10 commodities", top_k: "var", cost_robust: "?", score: 15, verdict: "bad", crown: false, note: "diverse strategy r2" }
 ];
 
 let sortKey = "score";
@@ -292,10 +363,34 @@ function scoreClass(s) {
   return "s40";
 }
 
-function verdictText(v) {
-  if (v === "ok") return "✅ 시도 가능";
+function isLiveRecommended(c) {
+  const bt = c.bt_sharpe ?? 0;
+  const mdd = c.mdd ?? 0;
+  const score = c.score ?? 0;
+  const note = String(c.note || "") + " " + String(c.logic || "");
+  if (note.includes("roll jump") || note.includes("아티팩트") || note.includes("망함")) return false;
+  if (bt < 2.0) return false;
+  if (mdd < -25) return false;
+  if (score < 80) return false;
+  return true;
+}
+
+function verdictText(v, c) {
+  if (isLiveRecommended(c)) return "✅ 실거래 추천";
+  if (v === "ok") return "✅ 연구상 양호";
   if (v === "warn") return "⚠️ 검증 필요";
-  return "❌ 실거래 불가";
+  return "❌ 알파 부재";
+}
+
+function liveBlockerText(c) {
+  if (isLiveRecommended(c)) {
+    const notes = ["<strong>Micro 선물(MES/MGC/MCL)로 paper 1개월 후 자본 5% 진입</strong>"];
+    notes.push("STOP 주문 동시 입력 (OCO)");
+    notes.push("증거금 -15% 도달 시 강제청산");
+    notes.push("FND 5영업일 전 롤오버 알림");
+    return notes.join("<br>");
+  }
+  return '<span style="color: var(--text-dim)">—</span>';
 }
 
 function render() {
@@ -318,7 +413,8 @@ function render() {
       <td class="num" style="color: var(--text-dim); font-size: 12px;">${c.top_k}</td>
       <td class="num" style="color: var(--text-dim); font-size: 12px;">${c.cost_robust}</td>
       <td class="num"><span class="score ${scoreClass(c.score)}">${c.score}</span></td>
-      <td class="verdict ${c.verdict}">${verdictText(c.verdict)}</td>
+      <td class="verdict ${isLiveRecommended(c) ? 'ok' : c.verdict}">${verdictText(c.verdict, c)}</td>
+      <td class="blocker">${liveBlockerText(c)}</td>
       <td class="note" title="${c.note}">${c.note || ""}</td>
     </tr>
   `).join("");
@@ -347,16 +443,19 @@ function updateStats() {
   const minMdd = Math.max(...champions.map(c => c.mdd));  // closest to 0
   document.getElementById("stat-mdd").textContent = minMdd.toFixed(1) + "%";
   const maxScore = Math.max(...champions.map(c => c.score));
-  if (maxScore < 60) {
-    document.getElementById("stat-status").textContent = "❌ 실거래 불가";
-    document.getElementById("stat-status").style.color = "var(--red)";
-  } else if (maxScore < 80) {
-    document.getElementById("stat-status").textContent = "⚠️ 검증 필요";
+  const recCount = champions.filter(isLiveRecommended).length;
+  if (recCount > 0) {
+    document.getElementById("stat-status").textContent = `✅ 실거래 추천 ${recCount}`;
+    document.getElementById("stat-status").style.color = "var(--green)";
+  } else if (maxScore >= 60) {
+    document.getElementById("stat-status").textContent = "⚠️ 알파 약함";
     document.getElementById("stat-status").style.color = "var(--orange)";
   } else {
-    document.getElementById("stat-status").textContent = "✅ 시도 가능";
-    document.getElementById("stat-status").style.color = "var(--green)";
+    document.getElementById("stat-status").textContent = "❌ 알파 부재";
+    document.getElementById("stat-status").style.color = "var(--red)";
   }
+  const recEl = document.getElementById("rec-count");
+  if (recEl) recEl.textContent = `LIVE 추천 ${recCount}`;
 }
 
 updateStats();

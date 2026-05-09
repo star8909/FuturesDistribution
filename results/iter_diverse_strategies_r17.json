@@ -1,0 +1,10 @@
+{
+  "round": 17,
+  "strategy": "kama_top3_trend",
+  "wf_sharpe": 0.4381681133469902,
+  "full_cagr_pct": 7.9703220146825515,
+  "full_mdd_pct": -61.71700827340045,
+  "win_rate": 51.595615103532275,
+  "n_days": 4105,
+  "elapsed_sec": 0.00699925422668457
+}

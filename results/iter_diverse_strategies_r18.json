@@ -1,0 +1,10 @@
+{
+  "round": 18,
+  "strategy": "xsection_mom_63d_LS",
+  "wf_sharpe": -0.39072148180034877,
+  "full_cagr_pct": -6.630520061456502,
+  "full_mdd_pct": -73.94746886953214,
+  "win_rate": 48.160779537149814,
+  "n_days": 4105,
+  "elapsed_sec": 0.00899958610534668
+}

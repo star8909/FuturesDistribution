@@ -1,0 +1,26 @@
+{
+  "round": 38,
+  "config": "Metal_F_63d_a1",
+  "params": {
+    "name": "Metal_F_63d_a1",
+    "top_k": 2,
+    "alpha": 1.0,
+    "mom": [
+      [
+        63,
+        1.0
+      ]
+    ]
+  },
+  "audit_version": 1,
+  "data_policy": "preserve_nan_returns_require_full_momentum_lookback",
+  "missing_return_pct": 0.024366471734892786,
+  "wf_sharpe": 0.35740240853722965,
+  "median_sharpe": 0.7997637363679482,
+  "full_cagr_pct": 9.49606863163266,
+  "full_mdd_pct": -20.86914865695604,
+  "n_windows": 27,
+  "neg_windows": 10,
+  "win_rate": 62.96296296296296,
+  "elapsed_sec": 2.4998972415924072
+}

@@ -1,0 +1,23 @@
+{
+  "round": 42,
+  "config": "All_F_8d_a2",
+  "params": {
+    "name": "All_F_8d_a2",
+    "top_k": 3,
+    "alpha": 2.0,
+    "mom": [
+      [
+        8,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": -0.3120774155815951,
+  "median_sharpe": -0.23341544644771792,
+  "full_cagr_pct": -7.105663939943385,
+  "full_mdd_pct": -24.31698625783968,
+  "n_windows": 27,
+  "neg_windows": 16,
+  "win_rate": 40.74074074074074,
+  "elapsed_sec": 3.276071071624756
+}

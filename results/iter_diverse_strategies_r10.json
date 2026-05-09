@@ -1,0 +1,10 @@
+{
+  "round": 10,
+  "strategy": "vol_target_eq_weight",
+  "wf_sharpe": 0.5038161072457952,
+  "full_cagr_pct": 4.635698247407949,
+  "full_mdd_pct": -33.66905753546915,
+  "win_rate": 52.52131546894032,
+  "n_days": 4105,
+  "elapsed_sec": 0.0040090084075927734
+}

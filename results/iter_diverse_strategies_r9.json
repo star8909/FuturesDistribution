@@ -1,0 +1,10 @@
+{
+  "round": 9,
+  "strategy": "pairs_ZW_ZC",
+  "wf_sharpe": 0.48581088674699296,
+  "full_cagr_pct": 5.850540943946747,
+  "full_mdd_pct": -28.070057987397746,
+  "win_rate": 48.30694275274056,
+  "n_days": 4105,
+  "elapsed_sec": 0.0029997825622558594
+}

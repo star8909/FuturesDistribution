@@ -1,0 +1,23 @@
+{
+  "round": 44,
+  "config": "All_F_21d_a1",
+  "params": {
+    "name": "All_F_21d_a1",
+    "top_k": 3,
+    "alpha": 1.0,
+    "mom": [
+      [
+        21,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": -0.045750335065621456,
+  "median_sharpe": -0.08046849388961792,
+  "full_cagr_pct": -0.8915922897753226,
+  "full_mdd_pct": -23.28269566742168,
+  "n_windows": 27,
+  "neg_windows": 15,
+  "win_rate": 44.44444444444444,
+  "elapsed_sec": 2.9210965633392334
+}

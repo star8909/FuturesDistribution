@@ -1,0 +1,10 @@
+{
+  "round": 19,
+  "strategy": "inv_vol_basket_63d",
+  "wf_sharpe": 0.5988656528166811,
+  "full_cagr_pct": 7.419043082963528,
+  "full_mdd_pct": -47.20104187300053,
+  "win_rate": 52.32643118148599,
+  "n_days": 4105,
+  "elapsed_sec": 0.004013776779174805
+}

@@ -1,30 +1,23 @@
 {
   "round": 28,
-  "config": "Metal_F_8d",
+  "config": "Energy_F_63d_a1",
   "params": {
-    "name": "Metal_F_8d",
-    "syms": [
-      "GC=F",
-      "SI=F",
-      "HG=F",
-      "PL=F",
-      "PA=F"
-    ],
+    "name": "Energy_F_63d_a1",
     "top_k": 2,
     "alpha": 1.0,
     "mom": [
       [
-        8,
+        63,
         1.0
       ]
     ]
   },
-  "wf_sharpe": 0.1877917760185909,
-  "median_sharpe": 0.34319483608508117,
-  "full_cagr_pct": 7.605276350498813,
-  "full_mdd_pct": -19.55999779037113,
+  "wf_sharpe": -0.11673541367626357,
+  "median_sharpe": -0.10938449389845264,
+  "full_cagr_pct": -3.9330579153530665,
+  "full_mdd_pct": -28.511038422123626,
   "n_windows": 27,
-  "neg_windows": 10,
-  "win_rate": 62.96296296296296,
-  "elapsed_sec": 2.980372190475464
+  "neg_windows": 15,
+  "win_rate": 44.44444444444444,
+  "elapsed_sec": 2.949249029159546
 }

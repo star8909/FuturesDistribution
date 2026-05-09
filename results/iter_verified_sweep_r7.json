@@ -1,30 +1,27 @@
 {
   "round": 7,
-  "config": "Energy_F_8d",
+  "config": "Agri_F_comp_a2",
   "params": {
-    "name": "Energy_F_8d",
-    "syms": [
-      "CL=F",
-      "BZ=F",
-      "NG=F",
-      "HO=F",
-      "RB=F"
-    ],
-    "top_k": 2,
-    "alpha": 1.0,
+    "name": "Agri_F_comp_a2",
+    "top_k": 3,
+    "alpha": 2.0,
     "mom": [
       [
+        21,
+        0.3
+      ],
+      [
         8,
-        1.0
+        0.7
       ]
     ]
   },
-  "wf_sharpe": 0.04264345186635752,
-  "median_sharpe": -0.09755480538179168,
-  "full_cagr_pct": -0.844115537762613,
-  "full_mdd_pct": -52.42982214175307,
+  "wf_sharpe": -0.1072488088177555,
+  "median_sharpe": -0.06647402188580145,
+  "full_cagr_pct": -3.66718108974764,
+  "full_mdd_pct": -24.81602436115815,
   "n_windows": 27,
   "neg_windows": 14,
   "win_rate": 48.148148148148145,
-  "elapsed_sec": 2.8125758171081543
+  "elapsed_sec": 3.3942575454711914
 }

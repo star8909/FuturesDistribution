@@ -1,45 +1,23 @@
 {
   "round": 29,
-  "config": "AllCommod_F_8d",
+  "config": "Energy_F_5d_a1",
   "params": {
-    "name": "AllCommod_F_8d",
-    "syms": [
-      "ZC=F",
-      "ZW=F",
-      "ZS=F",
-      "ZL=F",
-      "ZM=F",
-      "KC=F",
-      "SB=F",
-      "CT=F",
-      "CC=F",
-      "OJ=F",
-      "CL=F",
-      "BZ=F",
-      "NG=F",
-      "HO=F",
-      "RB=F",
-      "GC=F",
-      "SI=F",
-      "HG=F",
-      "PL=F",
-      "PA=F"
-    ],
-    "top_k": 3,
+    "name": "Energy_F_5d_a1",
+    "top_k": 2,
     "alpha": 1.0,
     "mom": [
       [
-        8,
+        5,
         1.0
       ]
     ]
   },
-  "wf_sharpe": -0.49374776176816076,
-  "median_sharpe": -0.35526829707225366,
-  "full_cagr_pct": -9.735257167712552,
-  "full_mdd_pct": -24.31698625783968,
+  "wf_sharpe": 0.14485868188113604,
+  "median_sharpe": 0.2175138870799476,
+  "full_cagr_pct": 0.7598999881681001,
+  "full_mdd_pct": -52.42982214175307,
   "n_windows": 27,
-  "neg_windows": 19,
-  "win_rate": 29.629629629629626,
-  "elapsed_sec": 3.0513570308685303
+  "neg_windows": 13,
+  "win_rate": 51.85185185185185,
+  "elapsed_sec": 2.731830358505249
 }

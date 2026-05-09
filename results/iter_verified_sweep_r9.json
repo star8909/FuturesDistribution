@@ -1,45 +1,23 @@
 {
   "round": 9,
-  "config": "AllCommod_F_8d",
+  "config": "Agri_F_5d_a1",
   "params": {
-    "name": "AllCommod_F_8d",
-    "syms": [
-      "ZC=F",
-      "ZW=F",
-      "ZS=F",
-      "ZL=F",
-      "ZM=F",
-      "KC=F",
-      "SB=F",
-      "CT=F",
-      "CC=F",
-      "OJ=F",
-      "CL=F",
-      "BZ=F",
-      "NG=F",
-      "HO=F",
-      "RB=F",
-      "GC=F",
-      "SI=F",
-      "HG=F",
-      "PL=F",
-      "PA=F"
-    ],
+    "name": "Agri_F_5d_a1",
     "top_k": 3,
     "alpha": 1.0,
     "mom": [
       [
-        8,
+        5,
         1.0
       ]
     ]
   },
-  "wf_sharpe": -0.49374776176816076,
-  "median_sharpe": -0.35526829707225366,
-  "full_cagr_pct": -9.735257167712552,
-  "full_mdd_pct": -24.31698625783968,
+  "wf_sharpe": -0.1948151174911789,
+  "median_sharpe": -0.23507115198551595,
+  "full_cagr_pct": -5.079606150826866,
+  "full_mdd_pct": -24.533499786990642,
   "n_windows": 27,
-  "neg_windows": 19,
-  "win_rate": 29.629629629629626,
-  "elapsed_sec": 3.111348867416382
+  "neg_windows": 17,
+  "win_rate": 37.03703703703704,
+  "elapsed_sec": 3.186472177505493
 }

@@ -1,0 +1,10 @@
+{
+  "round": 16,
+  "strategy": "quantile_breakout_q90",
+  "wf_sharpe": -0.04287529273948978,
+  "full_cagr_pct": -3.7442243669201902,
+  "full_mdd_pct": -74.41403420641095,
+  "win_rate": 26.894031668696712,
+  "n_days": 4105,
+  "elapsed_sec": 0.03000783920288086
+}

@@ -1,0 +1,10 @@
+{
+  "round": 20,
+  "strategy": "weekly_mean_revert_5d",
+  "wf_sharpe": 0.22871629403540308,
+  "full_cagr_pct": 2.890733913721455,
+  "full_mdd_pct": -52.40170913584548,
+  "win_rate": 22.0462850182704,
+  "n_days": 4105,
+  "elapsed_sec": 0.011998176574707031
+}

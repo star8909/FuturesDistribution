@@ -1,20 +1,8 @@
 {
   "round": 12,
-  "config": "Agri_F_8d_a2",
+  "config": "Agri_ETF_8d_a2",
   "params": {
-    "name": "Agri_F_8d_a2",
-    "syms": [
-      "ZC=F",
-      "ZW=F",
-      "ZS=F",
-      "ZL=F",
-      "ZM=F",
-      "KC=F",
-      "SB=F",
-      "CT=F",
-      "CC=F",
-      "OJ=F"
-    ],
+    "name": "Agri_ETF_8d_a2",
     "top_k": 2,
     "alpha": 2.0,
     "mom": [
@@ -24,12 +12,12 @@
       ]
     ]
   },
-  "wf_sharpe": -0.24253716616599363,
-  "median_sharpe": -0.2999724039250428,
-  "full_cagr_pct": -3.629856577597501,
-  "full_mdd_pct": -25.5782873737174,
+  "wf_sharpe": -0.20860380763536862,
+  "median_sharpe": 0.0005046646450996596,
+  "full_cagr_pct": -2.454414448221076,
+  "full_mdd_pct": -19.185536393801616,
   "n_windows": 27,
-  "neg_windows": 19,
-  "win_rate": 29.629629629629626,
-  "elapsed_sec": 2.6320853233337402
+  "neg_windows": 13,
+  "win_rate": 51.85185185185185,
+  "elapsed_sec": 3.033196210861206
 }

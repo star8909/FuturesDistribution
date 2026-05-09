@@ -1,0 +1,23 @@
+{
+  "round": 48,
+  "config": "All_F_63d_a1",
+  "params": {
+    "name": "All_F_63d_a1",
+    "top_k": 3,
+    "alpha": 1.0,
+    "mom": [
+      [
+        63,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": -0.020158720133468724,
+  "median_sharpe": -0.17361211215758812,
+  "full_cagr_pct": -0.42793063000421405,
+  "full_mdd_pct": -20.798443852699833,
+  "n_windows": 27,
+  "neg_windows": 17,
+  "win_rate": 37.03703703703704,
+  "elapsed_sec": 3.513186454772949
+}

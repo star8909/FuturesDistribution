@@ -1,0 +1,23 @@
+{
+  "round": 33,
+  "config": "Metal_F_8d_a0",
+  "params": {
+    "name": "Metal_F_8d_a0",
+    "top_k": 2,
+    "alpha": 0.0,
+    "mom": [
+      [
+        8,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": 0.20669483354572524,
+  "median_sharpe": 0.34319483608508117,
+  "full_cagr_pct": 7.777501965649991,
+  "full_mdd_pct": -19.55999779037113,
+  "n_windows": 27,
+  "neg_windows": 10,
+  "win_rate": 62.96296296296296,
+  "elapsed_sec": 2.7639763355255127
+}

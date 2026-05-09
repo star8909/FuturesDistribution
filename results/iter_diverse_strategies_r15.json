@@ -1,0 +1,10 @@
+{
+  "round": 15,
+  "strategy": "crack_spread_HO_CL",
+  "wf_sharpe": 0.07599913384317275,
+  "full_cagr_pct": -0.02064694573787884,
+  "full_mdd_pct": -37.95897526320936,
+  "win_rate": 47.40560292326431,
+  "n_days": 4105,
+  "elapsed_sec": 0.00299835205078125
+}

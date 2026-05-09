@@ -42,7 +42,10 @@ def champ_wf_simple(rets, top_k=2, cvar_alpha=1.0, dd_stop=-0.10, lock_days=63,
         composite = pd.Series(0.0, index=rets.columns)
         for period, pw in momentum_periods:
             rec = rets.iloc[end_idx - period:end_idx]
-            cum = (1 + rec.fillna(0)).prod() - 1
+            rec = rec.loc[:, rec.notna().sum() >= period]
+            if rec.empty:
+                continue
+            cum = (1 + rec).prod() - 1
             if cum.std() == 0:
                 continue
             z = (cum - cum.mean()) / cum.std()
@@ -130,7 +133,9 @@ def main():
 
     closes = load_close(cfg["syms"])
     print(f"  universe: {closes.shape[1]}")
-    rets = closes.pct_change().fillna(0)
+    # Preserve NaNs. Filling missing returns with 0 can create synthetic history
+    # before a contract/ETF has reliable tradable data.
+    rets = closes.pct_change()
 
     t0 = time.time()
     pnl, win_pnls = champ_wf_simple(rets, top_k=cfg["top_k"],
@@ -144,6 +149,9 @@ def main():
     result = {
         "round": rd, "config": cfg["name"],
         "params": {k: v for k, v in cfg.items() if k != "syms"},
+        "audit_version": 1,
+        "data_policy": "preserve_nan_returns_require_full_momentum_lookback",
+        "missing_return_pct": float(rets.isna().mean().mean() * 100) if rets.shape[1] else 100.0,
         "wf_sharpe": m["mean_sharpe"],
         "median_sharpe": m.get("median_sharpe"),
         "full_cagr_pct": m["CAGR"] * 100,

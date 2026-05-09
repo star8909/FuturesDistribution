@@ -3,19 +3,7 @@
   "config": "Agri_F_8d_a2",
   "params": {
     "name": "Agri_F_8d_a2",
-    "syms": [
-      "ZC=F",
-      "ZW=F",
-      "ZS=F",
-      "ZL=F",
-      "ZM=F",
-      "KC=F",
-      "SB=F",
-      "CT=F",
-      "CC=F",
-      "OJ=F"
-    ],
-    "top_k": 2,
+    "top_k": 3,
     "alpha": 2.0,
     "mom": [
       [
@@ -24,12 +12,12 @@
       ]
     ]
   },
-  "wf_sharpe": -0.24253716616599363,
-  "median_sharpe": -0.2999724039250428,
-  "full_cagr_pct": -3.629856577597501,
-  "full_mdd_pct": -25.5782873737174,
+  "wf_sharpe": -0.12661703725826992,
+  "median_sharpe": -0.06647402188580145,
+  "full_cagr_pct": -3.950053021298494,
+  "full_mdd_pct": -24.81602436115815,
   "n_windows": 27,
-  "neg_windows": 19,
-  "win_rate": 29.629629629629626,
-  "elapsed_sec": 2.889192581176758
+  "neg_windows": 14,
+  "win_rate": 48.148148148148145,
+  "elapsed_sec": 3.3160598278045654
 }

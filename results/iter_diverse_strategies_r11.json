@@ -1,0 +1,10 @@
+{
+  "round": 11,
+  "strategy": "donchian_50d_long_only",
+  "wf_sharpe": 0.056623609892299726,
+  "full_cagr_pct": -1.3282856141343946,
+  "full_mdd_pct": -63.81230828444713,
+  "win_rate": 24.77466504263094,
+  "n_days": 4105,
+  "elapsed_sec": 0.006000518798828125
+}

@@ -1,0 +1,27 @@
+{
+  "round": 46,
+  "config": "All_F_comp_a1",
+  "params": {
+    "name": "All_F_comp_a1",
+    "top_k": 3,
+    "alpha": 1.0,
+    "mom": [
+      [
+        21,
+        0.3
+      ],
+      [
+        8,
+        0.7
+      ]
+    ]
+  },
+  "wf_sharpe": -0.4662686439596137,
+  "median_sharpe": -0.3953578433866139,
+  "full_cagr_pct": -6.709870567085929,
+  "full_mdd_pct": -24.243036640608484,
+  "n_windows": 27,
+  "neg_windows": 18,
+  "win_rate": 33.33333333333333,
+  "elapsed_sec": 3.7854862213134766
+}

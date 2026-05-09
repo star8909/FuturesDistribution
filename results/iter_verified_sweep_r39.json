@@ -1,0 +1,23 @@
+{
+  "round": 39,
+  "config": "Metal_F_5d_a1",
+  "params": {
+    "name": "Metal_F_5d_a1",
+    "top_k": 2,
+    "alpha": 1.0,
+    "mom": [
+      [
+        5,
+        1.0
+      ]
+    ]
+  },
+  "wf_sharpe": 0.3185100303656533,
+  "median_sharpe": 0.3791588398205509,
+  "full_cagr_pct": 6.976832670919975,
+  "full_mdd_pct": -19.54705304838271,
+  "n_windows": 27,
+  "neg_windows": 8,
+  "win_rate": 70.37037037037037,
+  "elapsed_sec": 2.7157297134399414
+}

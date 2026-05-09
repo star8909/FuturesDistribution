@@ -1,29 +1,23 @@
 {
   "round": 5,
-  "config": "Agri_ETF_8d",
+  "config": "Agri_F_21d_a2",
   "params": {
-    "name": "Agri_ETF_8d",
-    "syms": [
-      "DBA",
-      "CORN",
-      "WEAT",
-      "SOYB"
-    ],
-    "top_k": 2,
-    "alpha": 1.0,
+    "name": "Agri_F_21d_a2",
+    "top_k": 3,
+    "alpha": 2.0,
     "mom": [
       [
-        8,
+        21,
         1.0
       ]
     ]
   },
-  "wf_sharpe": -0.20860380763536862,
-  "median_sharpe": 0.0005046646450996596,
-  "full_cagr_pct": -2.454414448221076,
-  "full_mdd_pct": -19.185536393801616,
+  "wf_sharpe": -0.02834653762895725,
+  "median_sharpe": -0.06647402188580145,
+  "full_cagr_pct": -0.4490486927632653,
+  "full_mdd_pct": -24.81602436115815,
   "n_windows": 27,
-  "neg_windows": 13,
-  "win_rate": 51.85185185185185,
-  "elapsed_sec": 3.125711679458618
+  "neg_windows": 15,
+  "win_rate": 44.44444444444444,
+  "elapsed_sec": 3.7041633129119873
 }

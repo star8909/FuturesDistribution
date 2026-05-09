@@ -1,0 +1,10 @@
+{
+  "round": 3,
+  "strategy": "rsi_reversal_14d",
+  "wf_sharpe": 0.34268969877486305,
+  "full_cagr_pct": 5.853631644488555,
+  "full_mdd_pct": -62.04212263222888,
+  "win_rate": 45.82216808769793,
+  "n_days": 4105,
+  "elapsed_sec": 0.012511730194091797
+}

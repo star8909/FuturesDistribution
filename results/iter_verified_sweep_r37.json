@@ -1,0 +1,27 @@
+{
+  "round": 37,
+  "config": "Metal_F_comp_a2",
+  "params": {
+    "name": "Metal_F_comp_a2",
+    "top_k": 2,
+    "alpha": 2.0,
+    "mom": [
+      [
+        21,
+        0.3
+      ],
+      [
+        8,
+        0.7
+      ]
+    ]
+  },
+  "wf_sharpe": 0.2962169631862626,
+  "median_sharpe": 0.4845181182390219,
+  "full_cagr_pct": 8.768651102845993,
+  "full_mdd_pct": -19.55999779037113,
+  "n_windows": 27,
+  "neg_windows": 9,
+  "win_rate": 66.66666666666666,
+  "elapsed_sec": 2.7171993255615234
+}

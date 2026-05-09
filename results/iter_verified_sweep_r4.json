@@ -1,39 +1,23 @@
 {
   "round": 4,
-  "config": "Agri_F_composite",
+  "config": "Agri_F_21d_a1",
   "params": {
-    "name": "Agri_F_composite",
-    "syms": [
-      "ZC=F",
-      "ZW=F",
-      "ZS=F",
-      "ZL=F",
-      "ZM=F",
-      "KC=F",
-      "SB=F",
-      "CT=F",
-      "CC=F",
-      "OJ=F"
-    ],
-    "top_k": 2,
+    "name": "Agri_F_21d_a1",
+    "top_k": 3,
     "alpha": 1.0,
     "mom": [
       [
         21,
-        0.3
-      ],
-      [
-        8,
-        0.7
+        1.0
       ]
     ]
   },
-  "wf_sharpe": -0.10081167639247476,
-  "median_sharpe": -0.2999724039250428,
-  "full_cagr_pct": -1.8363807951135458,
-  "full_mdd_pct": -25.5782873737174,
+  "wf_sharpe": -0.05490754172998236,
+  "median_sharpe": -0.06647402188580145,
+  "full_cagr_pct": -0.32458638304682097,
+  "full_mdd_pct": -24.81602436115815,
   "n_windows": 27,
-  "neg_windows": 16,
-  "win_rate": 40.74074074074074,
-  "elapsed_sec": 2.9262290000915527
+  "neg_windows": 15,
+  "win_rate": 44.44444444444444,
+  "elapsed_sec": 3.0422651767730713
 }

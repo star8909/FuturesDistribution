@@ -1,0 +1,10 @@
+{
+  "round": 7,
+  "strategy": "low_vol_anomaly_63d",
+  "wf_sharpe": 0.6651052656891498,
+  "full_cagr_pct": 8.623636113059208,
+  "full_mdd_pct": -36.86715121881928,
+  "win_rate": 52.35079171741779,
+  "n_days": 4105,
+  "elapsed_sec": 0.0059947967529296875
+}

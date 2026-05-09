@@ -1,0 +1,10 @@
+{
+  "round": 12,
+  "strategy": "multi_tf_trend_8_21_63",
+  "wf_sharpe": 0.09218168210487787,
+  "full_cagr_pct": -0.5703578653398989,
+  "full_mdd_pct": -64.10394197062787,
+  "win_rate": 43.0937880633374,
+  "n_days": 4105,
+  "elapsed_sec": 0.003997325897216797
+}

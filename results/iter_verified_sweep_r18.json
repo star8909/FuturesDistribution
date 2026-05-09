@@ -1,30 +1,23 @@
 {
   "round": 18,
-  "config": "Metal_F_8d",
+  "config": "Agri_ETF_63d_a1",
   "params": {
-    "name": "Metal_F_8d",
-    "syms": [
-      "GC=F",
-      "SI=F",
-      "HG=F",
-      "PL=F",
-      "PA=F"
-    ],
+    "name": "Agri_ETF_63d_a1",
     "top_k": 2,
     "alpha": 1.0,
     "mom": [
       [
-        8,
+        63,
         1.0
       ]
     ]
   },
-  "wf_sharpe": 0.1877917760185909,
-  "median_sharpe": 0.34319483608508117,
-  "full_cagr_pct": 7.605276350498813,
-  "full_mdd_pct": -19.55999779037113,
+  "wf_sharpe": -0.1706611226038435,
+  "median_sharpe": 0.015731622173852544,
+  "full_cagr_pct": -2.160682467745201,
+  "full_mdd_pct": -23.572424501913137,
   "n_windows": 27,
-  "neg_windows": 10,
-  "win_rate": 62.96296296296296,
-  "elapsed_sec": 2.9585351943969727
+  "neg_windows": 12,
+  "win_rate": 55.55555555555556,
+  "elapsed_sec": 3.6787447929382324
 }
