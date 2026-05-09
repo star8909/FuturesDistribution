@@ -1,0 +1,17 @@
+[diverse round 10] vol_target_eq_weight
+  universe: 11 종목, 4105 일
+Traceback (most recent call last):
+  File "c:\Projects\Quant\FuturesDistribution\iters\iter_diverse_strategies.py", line 233, in <module>
+    main()
+  File "c:\Projects\Quant\FuturesDistribution\iters\iter_diverse_strategies.py", line 210, in main
+    pnl = strat_fn(rets, closes)
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Projects\Quant\FuturesDistribution\iters\iter_diverse_strategies.py", line 192, in <lambda>
+    ("vol_target_eq_weight", lambda r, p: strategy_volatility_target(r, 63, 0.10)),
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Projects\Quant\FuturesDistribution\iters\iter_diverse_strategies.py", line 173, in strategy_volatility_target
+    if vol > 0:
+       ^^^^^^^
+  File "C:\Users\star8\AppData\Local\Programs\Python\Python311\Lib\site-packages\pandas\core\generic.py", line 1580, in __nonzero__
+    raise ValueError(
+ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().

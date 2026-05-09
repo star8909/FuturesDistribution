@@ -1,0 +1,4 @@
+[round 30] Agri_F_top_k3
+  universe: 10 종목, 4105 일
+  WF Sh=-0.11 CAGR=-3.1% MDD=-24.8% Win=44% (3s)
+  → iter_verified_sweep_r30.json

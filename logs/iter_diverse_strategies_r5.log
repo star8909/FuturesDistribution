@@ -1,0 +1,4 @@
+[diverse round 5] trend_filter_momentum
+  universe: 11 종목, 4105 일
+  Sh=0.11 CAGR=-0.3% MDD=-65.9% Win=44% (0.0s)
+  → iter_diverse_strategies_r5.json
